@@ -1,6 +1,8 @@
+import java.util.Properties
+
 @Suppress("DSL_SCOPE_VIOLATION") // TODO: Remove once KTIJ-19369 is fixed
 plugins {
-    alias(libs.plugins.androidApplication)
+    id("com.android.library")
     alias(libs.plugins.kotlinAndroid)
 }
 
@@ -9,13 +11,22 @@ android {
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.aspark.networking"
+//        applicationId = "com.aspark.networking"
         minSdk = 26
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+//        versionCode = 1
+//        versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildFeatures{
+            buildConfig = true
+        }
+
+        val properties = Properties()
+        properties.load(project.rootProject.file("local.properties").inputStream())
+        val apiKey = properties.getProperty("API_KEY")
+        buildConfigField("String", "API_KEY", "\"$apiKey\"")
     }
 
     buildTypes {
@@ -45,7 +56,6 @@ dependencies {
     implementation(libs.core.ktx)
     implementation(libs.appcompat)
     implementation(libs.material)
-    implementation(project(":app"))
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.espresso.core)
