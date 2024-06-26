@@ -21,6 +21,7 @@ class HomeViewModel() : ViewModel() {
         viewModelScope.launch {
             val recipes = repository.getRandomRecipes()
             if (recipes != null) {
+                randomRecipes.clear()
                 randomRecipes.addAll(recipes)
                 Log.i("TAG", "getRandomRecipes: ${randomRecipes.toList()}")
             }

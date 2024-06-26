@@ -1,9 +1,11 @@
 package com.aspark.recipeapp.ui
 
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.outlined.Favorite
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -16,7 +18,8 @@ import com.aspark.recipeapp.ui.screen.HomeScreen
 
 @Composable
 fun NavGraph(
-    navController: NavHostController = rememberNavController()
+    navController: NavHostController,
+    paddingValues: PaddingValues
 ) {
 
     NavHost(
@@ -25,7 +28,7 @@ fun NavGraph(
     ) {
 
         composable(Screen.Home.route) {
-            HomeScreen(navController = navController)
+            HomeScreen()
         }
         composable(Screen.RecipeDetail.route) {
 
@@ -44,5 +47,5 @@ sealed class Screen(
 ) {
     object Home : Screen("home", Icons.Outlined.Home, Icons.Filled.Home)
     object RecipeDetail : Screen("recipeDetail", Icons.Outlined.Home, Icons.Filled.Home)
-    object Favorites : Screen("favorites", Icons.Outlined.Favorite, Icons.Filled.Favorite)
+    object Favorites : Screen("favorites", Icons.Outlined.FavoriteBorder, Icons.Filled.Favorite)
 }
