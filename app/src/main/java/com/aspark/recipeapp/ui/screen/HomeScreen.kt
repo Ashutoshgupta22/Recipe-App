@@ -30,26 +30,34 @@ import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.capitalize
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import coil.compose.rememberAsyncImagePainter
+import coil.compose.rememberImagePainter
+import coil.request.ImageRequest
+import com.aspark.networking.RecipeResponse
 import com.aspark.recipeapp.R
 import com.aspark.recipeapp.model.Recipe
 import com.aspark.recipeapp.ui.NavGraph
 import com.aspark.recipeapp.ui.Screen
 import com.aspark.recipeapp.ui.component.BottomNavigationBar
 import com.aspark.recipeapp.ui.theme.RecipeAppTheme
+import com.aspark.recipeapp.viewmodel.HomeViewModel
 
 @Composable
 fun HomeScreen(navController: NavController) {
@@ -65,7 +73,14 @@ fun HomeScreen(navController: NavController) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreenContent(paddingValues: PaddingValues) {
+fun HomeScreenContent(
+    paddingValues: PaddingValues,
+    homeViewModel: HomeViewModel = viewModel()
+) {
+
+    LaunchedEffect(Unit) {
+        homeViewModel.getRandomRecipes()
+    }
 
     Column(
         modifier = Modifier.padding(16.dp)
@@ -98,17 +113,9 @@ fun HomeScreenContent(paddingValues: PaddingValues) {
             
         }
 
-        val popularRecipes = listOf(
-            Recipe(0,"First",""),
-            Recipe(0,"First",""),
-            Recipe(0,"First",""),
-            Recipe(0,"First",""),
-            Recipe(0,"First",""),
-        )
-
         LazyColumn {
             item(){
-                PopularRecipes(popularRecipes)
+                PopularRecipes(homeViewModel.randomRecipes.toList())
             }
 
             item { AllRecipes() }
@@ -124,7 +131,7 @@ fun AllRecipes() {
 }
 
 @Composable
-fun PopularRecipes(popularRecipeList: List<Recipe>) {
+fun PopularRecipes(popularRecipes: List<RecipeResponse>) {
 
     Column(
         modifier = Modifier
@@ -137,7 +144,7 @@ fun PopularRecipes(popularRecipeList: List<Recipe>) {
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ){
 
-            items(popularRecipeList) {
+            items(popularRecipes) {recipe ->
                 Box(
                     modifier = Modifier
                         .size(156.dp)
@@ -145,13 +152,14 @@ fun PopularRecipes(popularRecipeList: List<Recipe>) {
                         .clip(RoundedCornerShape(16.dp)),
 
                 ){
-
                     Image(
-                        painter = painterResource(id = R.drawable.bg_image),
-                        contentDescription = "",
-                        modifier = Modifier
-
-                    )
+                        painter = rememberAsyncImagePainter(
+                            ImageRequest.Builder(LocalContext.current).data(data = recipe.image)
+                                .apply(block = fun ImageRequest.Builder.() {
+                                    crossfade(true)
+                                }).build()
+                        ),
+                        contentDescription ="" )
                 }
 
             }

@@ -6,9 +6,13 @@ import retrofit2.http.Query
 
 interface ApiService {
     @GET("recipes/random")
-    suspend fun getRandomRecipes(@Query("apiKey") apiKey: String): Response<List<RecipeResponse>>
+    suspend fun getRandomRecipes(
+        @Query("apiKey") apiKey: String = BuildConfig.API_KEY,
+        @Query("number") number: Int = 10
+    ): Response<ObjectResponse>
 
     @GET("recipes/complexSearch")
-    suspend fun searchRecipes(@Query("apiKey") apiKey: String,
-                              @Query("query") query: String): Response<List<RecipeResponse>>
+    suspend fun searchRecipes(
+        @Query("apiKey") apiKey: String = BuildConfig.API_KEY,
+        @Query("query") query: String): Response<List<RecipeResponse>>
 }

@@ -2,6 +2,7 @@
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.kotlinAndroid)
+    id("com.google.devtools.ksp")
 }
 
 android {
@@ -51,6 +52,14 @@ android {
 }
 
 dependencies {
+
+    // Room for local caching
+    implementation(libs.androidx.room.runtime)
+    ksp(libs.androidx.room.compiler)
+    implementation(libs.androidx.room.ktx)
+
+    // Coil for image loading
+    implementation(libs.coil.compose)
 
     //retrofit
     implementation(libs.retrofit)
