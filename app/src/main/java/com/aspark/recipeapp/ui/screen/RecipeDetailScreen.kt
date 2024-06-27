@@ -19,14 +19,20 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -42,6 +48,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.aspark.networking.Equipment
 import com.aspark.networking.Ingredient
 import com.aspark.networking.RecipeResponse
+import com.aspark.recipeapp.model.Recipe
 import com.aspark.recipeapp.ui.component.BoldTitle
 import com.aspark.recipeapp.ui.component.ExpandableCard
 import com.aspark.recipeapp.ui.component.rememberMyAsyncPainter
@@ -65,7 +72,11 @@ fun RecipeDetailScreen(
             .verticalScroll(state = rememberScrollState(), enabled = true)
     ) {
 
-        RecipeImage(detailViewModel.recipe)
+        RecipeImage(detailViewModel.recipe) {recipe ->
+            detailViewModel.addToFavorites(
+                Recipe(recipe.id, recipe.title, recipe.image, true)
+            )
+        }
 
         Column(
             modifier = Modifier
@@ -237,7 +248,10 @@ fun QuickCards(recipe: RecipeResponse) {
 }
 
 @Composable
-fun RecipeImage(recipe: RecipeResponse) {
+fun RecipeImage(recipe: RecipeResponse, onClick: (RecipeResponse)-> Unit) {
+
+    var clicked by remember{ mutableStateOf(false) }
+
     Box(
         modifier = Modifier
     ) {
@@ -259,18 +273,25 @@ fun RecipeImage(recipe: RecipeResponse) {
                 .align(Alignment.BottomStart)
                 .padding(start = 16.dp, bottom = 20.dp)
         )
-
-        Icon(
-            imageVector = Icons.Outlined.FavoriteBorder,
-            contentDescription = "",
-            tint = AppOrange,
+        IconButton(
+            onClick = {
+                onClick(recipe)
+                clicked = !clicked
+                      },
             modifier = Modifier
                 .align(Alignment.TopEnd)
                 .padding(end = 16.dp, top = 16.dp)
                 .drawBehind {
                     drawCircle(Color.White, 44f)
                 }
-        )
+        ) {
+            Icon(
+                imageVector = if(clicked) Icons.Default.Favorite
+                else Icons.Outlined.FavoriteBorder,
+                contentDescription = "",
+                tint = AppOrange,
+            )
+        }
     }
 }
 

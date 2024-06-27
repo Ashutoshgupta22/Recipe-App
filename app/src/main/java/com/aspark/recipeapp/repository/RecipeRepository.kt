@@ -3,9 +3,14 @@ package com.aspark.recipeapp.repository
 import android.util.Log
 import com.aspark.networking.ApiService
 import com.aspark.networking.RecipeResponse
+import com.aspark.recipeapp.model.Recipe
+import com.aspark.recipeapp.room.RecipeDao
 import retrofit2.Response
 
-class RecipeRepository(private val apiService: ApiService) {
+class RecipeRepository(
+    private val apiService: ApiService,
+    private val recipeDao: RecipeDao?
+    ) {
 
     suspend fun getRandomRecipes(): List<RecipeResponse>? {
 
@@ -30,5 +35,12 @@ class RecipeRepository(private val apiService: ApiService) {
             response.body()
         }
         else null
+    }
+
+    suspend fun getFavoriteRecipes() = recipeDao?.getFavoriteRecipes()
+
+
+    suspend fun addToFavorites(recipe: Recipe) {
+        recipeDao?.insertRecipe(recipe)
     }
 }

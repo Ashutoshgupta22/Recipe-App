@@ -10,7 +10,7 @@ import com.aspark.recipeapp.repository.RecipeRepository
 import kotlinx.coroutines.launch
 
 class HomeViewModel() : ViewModel() {
-    private val repository: RecipeRepository = RecipeRepository(ApiClient.apiService )
+    private val repository: RecipeRepository = RecipeRepository(ApiClient.apiService, null )
 
     var randomRecipes = mutableStateListOf<RecipeResponse>()
         private set
