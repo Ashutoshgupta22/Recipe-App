@@ -9,7 +9,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.NavController
+import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
+import com.aspark.recipeapp.R
 import com.aspark.recipeapp.ui.Screen
 
 @Composable
@@ -53,4 +59,22 @@ fun BottomNavigationBar(navController: NavController) {
             }
         )
     }
+}
+
+@Composable
+fun rememberMyAsyncPainter(
+    url: String
+) = rememberAsyncImagePainter(
+        ImageRequest.Builder(LocalContext.current).data(data = url)
+            .apply(block = fun ImageRequest.Builder.() {
+                crossfade(true)
+                placeholder(R.drawable.ic_launcher_background)
+            }).build()
+    )
+
+@Composable
+fun BoldTitle(title: String) {
+    Text(text = title, fontWeight = FontWeight.Bold,
+        color = Color.Black
+    )
 }

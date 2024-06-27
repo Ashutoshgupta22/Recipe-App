@@ -10,11 +10,14 @@ import androidx.compose.material.icons.outlined.Home
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.aspark.recipeapp.ui.screen.FavouriteScreen
 import com.aspark.recipeapp.ui.screen.HomeScreen
+import com.aspark.recipeapp.ui.screen.RecipeDetailScreen
 
 @Composable
 fun NavGraph(
@@ -28,16 +31,20 @@ fun NavGraph(
     ) {
 
         composable(Screen.Home.route) {
-            HomeScreen()
+            HomeScreen(navController)
         }
-        composable(Screen.RecipeDetail.route) {
 
+        composable(
+            route = Screen.RecipeDetail.route,
+            arguments = listOf(navArgument("recipeId") { type = NavType.LongType })
+        ) { backStackEntry ->
+            val recipeId = backStackEntry.arguments?.getLong("recipeId") ?: return@composable
+            RecipeDetailScreen(recipeId)
         }
         composable(Screen.Favorites.route) {
             FavouriteScreen(navController = navController)
         }
     }
-
 }
 
 sealed class Screen(
@@ -46,6 +53,10 @@ sealed class Screen(
     val selectedIcon: ImageVector
 ) {
     object Home : Screen("home", Icons.Outlined.Home, Icons.Filled.Home)
-    object RecipeDetail : Screen("recipeDetail", Icons.Outlined.Home, Icons.Filled.Home)
+    object RecipeDetail : Screen("recipeDetail/{recipeId}",
+        Icons.Outlined.Home, Icons.Filled.Home
+        ) {
+        fun createRoute(recipeId: Long) = "recipeDetail/$recipeId"
+    }
     object Favorites : Screen("favorites", Icons.Outlined.FavoriteBorder, Icons.Filled.Favorite)
 }

@@ -48,13 +48,16 @@ import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.aspark.networking.RecipeResponse
+import com.aspark.recipeapp.ui.Screen
 import com.aspark.recipeapp.ui.component.BottomNavigationBar
+import com.aspark.recipeapp.ui.component.rememberMyAsyncPainter
 import com.aspark.recipeapp.ui.theme.RecipeAppTheme
 import com.aspark.recipeapp.viewmodel.HomeViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
+    navController: NavController,
     homeViewModel: HomeViewModel = viewModel()
 ) {
 
@@ -110,7 +113,9 @@ fun HomeScreen(
             }
 
             itemsIndexed(homeViewModel.randomRecipes.toList()) { index, recipe ->
-                AllRecipes(recipe)
+                AllRecipes(recipe) { id ->
+                    navController.navigate(Screen.RecipeDetail.createRoute(id))
+                }
 
                 if (index == homeViewModel.randomRecipes.lastIndex)
                     Spacer(modifier = Modifier.height(80.dp))
@@ -121,10 +126,10 @@ fun HomeScreen(
 }
 
 @Composable
-fun AllRecipes(recipe: RecipeResponse) {
+fun AllRecipes(recipe: RecipeResponse, cardClicked: (Long)-> Unit) {
 
     OutlinedCard(
-        onClick = { /*TODO*/ },
+        onClick = { cardClicked(recipe.id) },
         shape = RoundedCornerShape(12.dp),
         modifier = Modifier
             .fillMaxWidth()
@@ -132,13 +137,7 @@ fun AllRecipes(recipe: RecipeResponse) {
     ) {
         Row {
             Image(
-                painter = rememberAsyncImagePainter(
-                    ImageRequest.Builder(LocalContext.current).data(data = recipe.image)
-                        .apply(block = fun ImageRequest.Builder.() {
-                            crossfade(true)
-//                                    scale(Scale.FIT)
-                        }).build()
-                ),
+                painter = rememberMyAsyncPainter(recipe.image),
                 contentDescription = "",
                 modifier = Modifier
                     .fillMaxHeight()
@@ -194,13 +193,7 @@ fun PopularRecipes(popularRecipes: List<RecipeResponse>) {
 
                     ) {
                     Image(
-                        painter = rememberAsyncImagePainter(
-                            ImageRequest.Builder(LocalContext.current).data(data = recipe.image)
-                                .apply(block = fun ImageRequest.Builder.() {
-                                    crossfade(true)
-//                                    scale(Scale.FIT)
-                                }).build()
-                        ),
+                        painter = rememberMyAsyncPainter(recipe.image),
                         contentDescription = "",
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Crop,
@@ -244,7 +237,7 @@ private fun HomeScreenPreview() {
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
         ) {
-            HomeScreen()
+            HomeScreen(rememberNavController())
         }
     }
 }
