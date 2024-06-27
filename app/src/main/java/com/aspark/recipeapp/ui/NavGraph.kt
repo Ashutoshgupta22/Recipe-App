@@ -22,7 +22,8 @@ import com.aspark.recipeapp.ui.screen.RecipeDetailScreen
 @Composable
 fun NavGraph(
     navController: NavHostController,
-    paddingValues: PaddingValues
+    paddingValues: PaddingValues,
+    onNavigate: (String) -> Unit
 ) {
 
     NavHost(
@@ -32,6 +33,7 @@ fun NavGraph(
 
         composable(Screen.Home.route) {
             HomeScreen(navController)
+            onNavigate(Screen.Home.route)
         }
 
         composable(
@@ -40,9 +42,11 @@ fun NavGraph(
         ) { backStackEntry ->
             val recipeId = backStackEntry.arguments?.getLong("recipeId") ?: return@composable
             RecipeDetailScreen(recipeId)
+            onNavigate(Screen.RecipeDetail.route)
         }
         composable(Screen.Favorites.route) {
             FavouriteScreen(navController = navController)
+            onNavigate(Screen.Favorites.route)
         }
     }
 }

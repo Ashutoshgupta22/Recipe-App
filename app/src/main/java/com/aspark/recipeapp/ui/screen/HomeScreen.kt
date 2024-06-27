@@ -158,7 +158,7 @@ fun AllRecipes(recipe: RecipeResponse, cardClicked: (Long)-> Unit) {
                 )
 
                 Text(
-                    text = "Ready in 25 min", fontSize = 14.sp,
+                    text = "Ready in ${recipe.readyInMinutes} min", fontSize = 14.sp,
                     color = Color.Gray, fontWeight = FontWeight.Medium,
                     maxLines = 1,
                 )
@@ -213,7 +213,7 @@ fun PopularRecipes(popularRecipes: List<RecipeResponse>) {
                         )
 
                         Text(
-                            text = "Ready in 25 min", fontSize = 12.sp,
+                            text = "Ready in ${recipe.readyInMinutes} min", fontSize = 12.sp,
                             color = Color.Gray, fontWeight = FontWeight.Medium,
                             maxLines = 1,
                         )

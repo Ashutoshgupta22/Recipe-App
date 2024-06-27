@@ -43,6 +43,7 @@ import com.aspark.networking.Equipment
 import com.aspark.networking.Ingredient
 import com.aspark.networking.RecipeResponse
 import com.aspark.recipeapp.ui.component.BoldTitle
+import com.aspark.recipeapp.ui.component.ExpandableCard
 import com.aspark.recipeapp.ui.component.rememberMyAsyncPainter
 import com.aspark.recipeapp.ui.theme.AppOrange
 import com.aspark.recipeapp.ui.theme.RecipeAppTheme
@@ -64,40 +65,48 @@ fun RecipeDetailScreen(
             .verticalScroll(state = rememberScrollState(), enabled = true)
     ) {
 
-            RecipeImage(detailViewModel.recipe)
+        RecipeImage(detailViewModel.recipe)
 
-            Column(
-                modifier = Modifier
-                    .padding(16.dp),
-            ) {
-                Spacer(modifier = Modifier.height(16.dp))
+        Column(
+            modifier = Modifier
+                .padding(16.dp),
+        ) {
+            Spacer(modifier = Modifier.height(16.dp))
 
-                QuickCards(detailViewModel.recipe)
-                Spacer(modifier = Modifier.height(32.dp))
+            QuickCards(detailViewModel.recipe)
+            Spacer(modifier = Modifier.height(32.dp))
 
-                Ingredients(detailViewModel.recipe.extendedIngredients)
-                Spacer(modifier = Modifier.height(32.dp))
+            Ingredients(detailViewModel.recipe.extendedIngredients)
+            Spacer(modifier = Modifier.height(32.dp))
 
-                BoldTitle(title = "Instructions")
+            BoldTitle(title = "Instructions")
 
-                Text(
-                    text = detailViewModel.recipe.instructions,
-                    fontSize = 14.sp
-                    )
-                Spacer(modifier = Modifier.height(32.dp))
+            Text(
+                text = detailViewModel.recipe.instructions,
+                fontSize = 14.sp
+            )
+            Spacer(modifier = Modifier.height(32.dp))
 
-                Equipments(detailViewModel.recipe.equipment)
-                Spacer(modifier = Modifier.height(32.dp))
+            Equipments(detailViewModel.recipe.equipment)
+            Spacer(modifier = Modifier.height(32.dp))
 
-                BoldTitle(title = "Quick Summary")
+            BoldTitle(title = "Quick Summary")
 
-                Text(
-                    text = detailViewModel.recipe.summary,
-                    fontSize = 14.sp
-                )
-            }
+            Text(
+                text = detailViewModel.recipe.summary,
+                fontSize = 14.sp
+            )
         }
+
+        ExpandableCard(title = "Nutrition", description = "Some Information")
+        Spacer(modifier = Modifier.height(4.dp))
+        ExpandableCard(title = "Bad for health nutrition", description = "Some Information")
+        Spacer(modifier = Modifier.height(4.dp))
+
+        ExpandableCard(title = "Good for health nutrition", description = "Some Information")
+        Spacer(modifier = Modifier.height(16.dp))
     }
+}
 
 @Composable
 fun Equipments(equipmentList: List<Equipment>) {
@@ -134,7 +143,7 @@ fun Ingredients(ingredientList: List<Ingredient>) {
 
     LazyRow(
         horizontalArrangement = Arrangement.spacedBy(8.dp)
-    ){
+    ) {
 
         items(ingredientList) { ingredient ->
 
