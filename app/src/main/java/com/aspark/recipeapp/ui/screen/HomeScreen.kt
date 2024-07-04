@@ -50,6 +50,7 @@ import coil.request.ImageRequest
 import com.aspark.networking.RecipeResponse
 import com.aspark.recipeapp.ui.Screen
 import com.aspark.recipeapp.ui.component.BottomNavigationBar
+import com.aspark.recipeapp.ui.component.MySearchBar
 import com.aspark.recipeapp.ui.component.rememberMyAsyncPainter
 import com.aspark.recipeapp.ui.theme.RecipeAppTheme
 import com.aspark.recipeapp.viewmodel.HomeViewModel
@@ -72,29 +73,9 @@ fun HomeScreen(
         Text(text = "\uD83D\uDC4B Hey Ashu", fontWeight = FontWeight.Medium)
         Text(text = "Discover tasty and healthy recipes", fontSize = 12.sp)
 
-        SearchBar(
-            query = "",
-            onQueryChange = {
-
-            },
-            onSearch = {
-
-            },
-            active = false,
-            onActiveChange = {
-
-            },
-            placeholder = {
-                Text(text = "Search any recipe")
-            },
-            leadingIcon = {
-                Icon(imageVector = Icons.Rounded.Search, contentDescription = "")
-            },
-            shape = RoundedCornerShape(12.dp),
-            modifier = Modifier
-                .fillMaxWidth()
-
-        ) {
+        MySearchBar({
+            navController.navigate(Screen.Search.route)
+        }) { query ->
 
         }
 

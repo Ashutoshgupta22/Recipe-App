@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.aspark.recipeapp.ui.component
 
 import androidx.compose.animation.animateContentSize
@@ -7,15 +9,20 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.rounded.Clear
+import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -32,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
+import com.aspark.recipeapp.MyApplication
 import com.aspark.recipeapp.R
 import com.aspark.recipeapp.ui.Screen
 
@@ -47,13 +55,13 @@ fun BottomNavigationBar(navController: NavController) {
             onClick = {
                 navController.navigate(Screen.Home.route)
                 selected = Screen.Home
-                      },
+            },
             label = { Text(text = "Home") },
             icon = {
                 Icon(
                     imageVector =
-                    if (selected == Screen.Home) Screen.Home.selectedIcon
-                    else Screen.Home.icon,
+                    if (selected == Screen.Home) Screen.Home.selectedIcon!!
+                    else Screen.Home.icon!!,
                     contentDescription = ""
                 )
             }
@@ -64,13 +72,13 @@ fun BottomNavigationBar(navController: NavController) {
             onClick = {
                 navController.navigate(Screen.Favorites.route)
                 selected = Screen.Favorites
-                      },
+            },
             label = { Text(text = "Favourite") },
             icon = {
                 Icon(
                     imageVector =
-                    if (selected == Screen.Favorites) Screen.Favorites.selectedIcon
-                    else Screen.Favorites.icon,
+                    if (selected == Screen.Favorites) Screen.Favorites.selectedIcon!!
+                    else Screen.Favorites.icon!!,
                     contentDescription = ""
                 )
             }
@@ -82,16 +90,17 @@ fun BottomNavigationBar(navController: NavController) {
 fun rememberMyAsyncPainter(
     url: String
 ) = rememberAsyncImagePainter(
-        ImageRequest.Builder(LocalContext.current).data(data = url)
-            .apply(block = fun ImageRequest.Builder.() {
-                crossfade(true)
-                placeholder(R.drawable.ic_launcher_background)
-            }).build()
-    )
+    ImageRequest.Builder(LocalContext.current).data(data = url)
+        .apply(block = fun ImageRequest.Builder.() {
+            crossfade(true)
+            placeholder(R.drawable.ic_launcher_background)
+        }).build()
+)
 
 @Composable
 fun BoldTitle(title: String) {
-    Text(text = title, fontWeight = FontWeight.Bold,
+    Text(
+        text = title, fontWeight = FontWeight.Bold,
         color = Color.Black
     )
 }
@@ -140,5 +149,50 @@ fun ExpandableCard(
             }
         }
     }
+}
+
+@Composable
+fun MySearchBar(onActiveChange: () -> Unit, onSearch: (String) -> Unit) {
+
+    var query by remember { mutableStateOf("") }
+    var isActive by remember { mutableStateOf(false) }
+
+    SearchBar(
+        query = query,
+        onQueryChange = {
+            query = it
+        },
+        onSearch = {
+            onSearch(it)
+        },
+        active = isActive,
+        onActiveChange = {
+            onActiveChange()
+            isActive = it
+        },
+        placeholder = {
+            Text(text = "Search any recipe")
+        },
+        leadingIcon = {
+            Icon(imageVector = Icons.Rounded.Search, contentDescription = "")
+        },
+        trailingIcon = {
+                       if(query.isNotEmpty())
+                           IconButton(onClick = { query = "" }) {
+                               Icon(
+                                   imageVector = Icons.Rounded.Clear,
+                                   contentDescription = ""
+                               )
+                           }
+        },
+        shape = RoundedCornerShape(12.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 8.dp)
+
+    ) {
+
+    }
+
 }
 

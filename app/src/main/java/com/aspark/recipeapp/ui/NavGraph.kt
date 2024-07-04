@@ -18,6 +18,7 @@ import androidx.navigation.navArgument
 import com.aspark.recipeapp.ui.screen.FavouriteScreen
 import com.aspark.recipeapp.ui.screen.HomeScreen
 import com.aspark.recipeapp.ui.screen.RecipeDetailScreen
+import com.aspark.recipeapp.ui.screen.SearchScreen
 
 @Composable
 fun NavGraph(
@@ -48,19 +49,25 @@ fun NavGraph(
             FavouriteScreen(navController = navController)
             onNavigate(Screen.Favorites.route)
         }
+
+        composable(Screen.Search.route) {
+            SearchScreen(navController = navController)
+            onNavigate(Screen.Search.route)
+        }
     }
 }
 
 sealed class Screen(
     val route: String,
-    val icon: ImageVector,
-    val selectedIcon: ImageVector
+    val icon: ImageVector?,
+    val selectedIcon: ImageVector?
 ) {
     object Home : Screen("home", Icons.Outlined.Home, Icons.Filled.Home)
     object RecipeDetail : Screen("recipeDetail/{recipeId}",
-        Icons.Outlined.Home, Icons.Filled.Home
+        null, null
         ) {
         fun createRoute(recipeId: Long) = "recipeDetail/$recipeId"
     }
     object Favorites : Screen("favorites", Icons.Outlined.FavoriteBorder, Icons.Filled.Favorite)
+    object Search: Screen("search", null, null)
 }

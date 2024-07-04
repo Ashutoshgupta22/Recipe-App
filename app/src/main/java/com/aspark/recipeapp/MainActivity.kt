@@ -12,6 +12,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.core.view.WindowCompat
 import androidx.navigation.compose.rememberNavController
 import com.aspark.recipeapp.ui.NavGraph
 import com.aspark.recipeapp.ui.Screen
@@ -22,6 +23,9 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
+
+//            WindowCompat.setDecorFitsSystemWindows(window, false)
+
             RecipeAppTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(

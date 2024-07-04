@@ -8,6 +8,10 @@ import com.aspark.recipeapp.model.Recipe
 
 @Dao
 interface RecipeDao {
+
+    @Query("select * from recipe")
+    suspend fun getAllRecipes(): List<Recipe>
+
     @Query("SELECT * FROM recipe WHERE isFavorite = 1")
     suspend fun getFavoriteRecipes(): List<Recipe>
 

@@ -17,12 +17,18 @@ class HomeViewModel() : ViewModel() {
     var searchRecipes = mutableStateListOf<RecipeResponse>()
         private set
 
+    private var isDataLoaded = false;
+
     fun getRandomRecipes() {
+
+        if (isDataLoaded) return
+
         viewModelScope.launch {
             val recipes = repository.getRandomRecipes()
             if (recipes != null) {
                 randomRecipes.clear()
                 randomRecipes.addAll(recipes)
+                isDataLoaded = true
                 Log.i("TAG", "getRandomRecipes: ${randomRecipes.toList()}")
             }
             else Log.e("TAG", "getRandomRecipes: Empty Body" )
