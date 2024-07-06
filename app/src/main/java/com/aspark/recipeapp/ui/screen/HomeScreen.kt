@@ -64,7 +64,7 @@ fun HomeScreen(
         Text(text = "Discover tasty and healthy recipes", fontSize = 12.sp)
 
         MySearchBar(
-            isSearchScreen = false ,
+            isActive = false ,
             onBack = {},
             onActiveChange = { navController.navigate(Screen.Search.route) },
             onSearch = { query -> }

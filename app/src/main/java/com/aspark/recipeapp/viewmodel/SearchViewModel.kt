@@ -25,4 +25,9 @@ class SearchViewModel: ViewModel() {
             else Log.e("SearchViewModel", "getSearchSuggestions: Empty Body", )
         }
     }
+
+    fun searchRecipe(query: String) {
+
+
+    }
 }

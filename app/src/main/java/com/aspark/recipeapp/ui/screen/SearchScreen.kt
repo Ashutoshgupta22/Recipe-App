@@ -1,10 +1,15 @@
 package com.aspark.recipeapp.ui.screen
 
+import android.util.Log
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
@@ -15,10 +20,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.aspark.networking.model.SearchSuggestionResponse
+import com.aspark.recipeapp.ui.Screen
 import com.aspark.recipeapp.ui.component.MySearchBar
 import com.aspark.recipeapp.ui.theme.RecipeAppTheme
 import com.aspark.recipeapp.viewmodel.SearchViewModel
@@ -29,7 +36,8 @@ fun SearchScreen(
     searchViewModel: SearchViewModel = viewModel()
 ) {
 
-    BackHandler {
+    BackHandler(enabled = true) {
+        Log.i("BackHandler", "SearchScreen: back pressed")
         navController.popBackStack()
     }
 
@@ -38,28 +46,43 @@ fun SearchScreen(
     ) {
 
         MySearchBar(
-            isSearchScreen = true,
+            isActive  = true,
             onBack = { navController.popBackStack() },
             onActiveChange = {},
             onSearch = { query ->
                 searchViewModel.getSearchSuggestions(query)
             }
         ) {
-            SuggestionList(searchViewModel.suggestions.toList())
+            SuggestionList(searchViewModel.suggestions.toList()) { recipeId ->
+                navController.navigate(Screen.RecipeDetail.createRoute(recipeId))
+            }
         }
     }
 }
 
 @Composable
-fun SuggestionList(suggestions: List<SearchSuggestionResponse>) {
+fun SuggestionList(suggestions: List<SearchSuggestionResponse>,
+                   onClick: (Long)-> Unit) {
 
     LazyColumn(
-        verticalArrangement = Arrangement.spacedBy(4.dp),
-        contentPadding = PaddingValues(vertical = 16.dp, horizontal = 16.dp)
+        contentPadding = PaddingValues(vertical = 16.dp, horizontal = 16.dp),
+        modifier = Modifier
+            .fillMaxWidth()
     ){
         items(suggestions) { item: SearchSuggestionResponse ->
-
-            Text(text = item.title, color = Color.Black)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onClick(item.id) }
+            ) {
+                Text(
+                    text = item.title,
+                    color = Color.Black,
+                    fontSize = 18.sp,
+                    modifier = Modifier
+                        .padding(vertical = 8.dp, horizontal = 8.dp)
+                )
+            }
         }
     }
 

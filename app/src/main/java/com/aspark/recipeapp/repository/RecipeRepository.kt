@@ -25,7 +25,7 @@ class RecipeRepository(
     }
 
     suspend fun getSearchSuggestions(query: String): List<SearchSuggestionResponse>? {
-        val response = apiService.getSearchSuggestions(query = query, 10)
+        val response = apiService.getSearchSuggestions(query = query, 25)
 
         return if (response.isSuccessful) {
             Log.d("TAG", "getSearchSuggestions: $response")
