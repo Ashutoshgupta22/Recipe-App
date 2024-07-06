@@ -1,14 +1,9 @@
 package com.aspark.recipeapp.viewmodel
 
-import android.util.Log
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.aspark.networking.ApiClient
-import com.aspark.networking.RecipeResponse
 import com.aspark.recipeapp.MyApplication
 import com.aspark.recipeapp.model.Recipe
 import com.aspark.recipeapp.repository.RecipeRepository

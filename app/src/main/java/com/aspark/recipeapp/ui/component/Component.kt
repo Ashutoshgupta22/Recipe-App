@@ -1,19 +1,24 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
+@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class)
 
 package com.aspark.recipeapp.ui.component
 
+import android.util.Log
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.rounded.Clear
+import androidx.compose.material.icons.rounded.KeyboardArrowLeft
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -28,6 +33,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -42,6 +48,8 @@ import coil.request.ImageRequest
 import com.aspark.recipeapp.MyApplication
 import com.aspark.recipeapp.R
 import com.aspark.recipeapp.ui.Screen
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun BottomNavigationBar(navController: NavController) {
@@ -152,20 +160,28 @@ fun ExpandableCard(
 }
 
 @Composable
-fun MySearchBar(onActiveChange: () -> Unit, onSearch: (String) -> Unit) {
+fun MySearchBar(
+    isSearchScreen: Boolean,
+    onBack: () -> Unit,
+    onActiveChange: () -> Unit,
+    onSearch: (String) -> Unit,
+    content: @Composable (ColumnScope.() -> Unit)
+) {
 
     var query by remember { mutableStateOf("") }
-    var isActive by remember { mutableStateOf(false) }
+    var isActive by remember { mutableStateOf(true) }
+    val coroutineScope  = rememberCoroutineScope()
 
     SearchBar(
         query = query,
         onQueryChange = {
             query = it
+            onSearch(query)
         },
         onSearch = {
             onSearch(it)
         },
-        active = isActive,
+        active = if(isSearchScreen) isActive else false,
         onActiveChange = {
             onActiveChange()
             isActive = it
@@ -174,7 +190,17 @@ fun MySearchBar(onActiveChange: () -> Unit, onSearch: (String) -> Unit) {
             Text(text = "Search any recipe")
         },
         leadingIcon = {
-            Icon(imageVector = Icons.Rounded.Search, contentDescription = "")
+            if (isSearchScreen)
+                IconButton(onClick = { onBack() },
+                    modifier = Modifier
+                        .size(64.dp)
+                    ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowLeft,
+                        contentDescription = ""
+                    )
+                }
+            else Icon(imageVector = Icons.Rounded.Search, contentDescription = "")
         },
         trailingIcon = {
                        if(query.isNotEmpty())
@@ -191,7 +217,7 @@ fun MySearchBar(onActiveChange: () -> Unit, onSearch: (String) -> Unit) {
             .padding(bottom = 8.dp)
 
     ) {
-
+        content()
     }
 
 }

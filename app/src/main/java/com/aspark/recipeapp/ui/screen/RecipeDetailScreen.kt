@@ -45,9 +45,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.aspark.networking.Equipment
-import com.aspark.networking.Ingredient
-import com.aspark.networking.RecipeResponse
+import com.aspark.networking.model.Equipment
+import com.aspark.networking.model.Ingredient
+import com.aspark.networking.model.RecipeResponse
 import com.aspark.recipeapp.model.Recipe
 import com.aspark.recipeapp.ui.component.BoldTitle
 import com.aspark.recipeapp.ui.component.ExpandableCard

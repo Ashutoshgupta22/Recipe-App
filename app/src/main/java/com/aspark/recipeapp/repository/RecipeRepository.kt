@@ -2,7 +2,8 @@ package com.aspark.recipeapp.repository
 
 import android.util.Log
 import com.aspark.networking.ApiService
-import com.aspark.networking.RecipeResponse
+import com.aspark.networking.model.RecipeResponse
+import com.aspark.networking.model.SearchSuggestionResponse
 import com.aspark.recipeapp.model.Recipe
 import com.aspark.recipeapp.room.RecipeDao
 import retrofit2.Response
@@ -23,8 +24,17 @@ class RecipeRepository(
         else null
     }
 
-    suspend fun searchRecipes(query: String): Response<List<RecipeResponse>>{
-        return apiService.searchRecipes(query = query)
+    suspend fun getSearchSuggestions(query: String): List<SearchSuggestionResponse>? {
+        val response = apiService.getSearchSuggestions(query = query, 10)
+
+        return if (response.isSuccessful) {
+            Log.d("TAG", "getSearchSuggestions: $response")
+            response.body()
+        }
+        else {
+            Log.e("RecipeRepository", "getSearchSuggestions: Response unsuccessful" )
+            null
+        }
     }
 
     suspend fun getRecipeById(id: Long): RecipeResponse? {

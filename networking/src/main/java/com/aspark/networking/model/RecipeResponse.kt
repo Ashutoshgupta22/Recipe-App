@@ -1,4 +1,4 @@
-package com.aspark.networking
+package com.aspark.networking.model
 
 data class ObjectResponse(
     val recipes: MutableList<RecipeResponse>
