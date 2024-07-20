@@ -1,5 +1,8 @@
 package com.aspark.recipeapp.ui
 
+import android.view.animation.Animation
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
@@ -32,7 +35,27 @@ fun NavGraph(
         startDestination = Screen.Home.route
     ) {
 
-        composable(Screen.Home.route) {
+        composable(
+            route = Screen.Home.route,
+            popEnterTransition = {
+                slideIntoContainer(
+                    towards = AnimatedContentTransitionScope.SlideDirection.Up,
+                    animationSpec = tween(400)
+                )
+            },
+//            popExitTransition = {
+//                slideOutOfContainer(
+//                    towards = AnimatedContentTransitionScope.SlideDirection.Down,
+//                    animationSpec = tween(400)
+//                )
+//            },
+            exitTransition = {
+                slideOutOfContainer(
+                    towards = AnimatedContentTransitionScope.SlideDirection.Down,
+                    animationSpec = tween(400)
+                )
+            }
+            ) {
             HomeScreen(navController)
             onNavigate(Screen.Home.route)
         }
@@ -50,7 +73,20 @@ fun NavGraph(
             onNavigate(Screen.Favorites.route)
         }
 
-        composable(Screen.Search.route) {
+        composable(Screen.Search.route,
+            enterTransition = {
+                slideIntoContainer(
+                    towards = AnimatedContentTransitionScope.SlideDirection.Down,
+                    animationSpec = tween(400)
+                )
+            },
+            exitTransition = {
+                slideOutOfContainer(
+                    towards = AnimatedContentTransitionScope.SlideDirection.Up,
+                    animationSpec = tween(400)
+                )
+            }
+            ) {
             SearchScreen(navController = navController)
             onNavigate(Screen.Search.route)
         }

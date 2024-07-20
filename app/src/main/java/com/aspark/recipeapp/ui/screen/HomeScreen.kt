@@ -17,7 +17,12 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Surface
@@ -39,7 +44,6 @@ import androidx.navigation.compose.rememberNavController
 import com.aspark.networking.model.RecipeResponse
 import com.aspark.recipeapp.ui.Screen
 import com.aspark.recipeapp.ui.component.MyAsyncImage
-import com.aspark.recipeapp.ui.component.MySearchBar
 import com.aspark.recipeapp.ui.theme.RecipeAppTheme
 import com.aspark.recipeapp.viewmodel.HomeViewModel
 
@@ -61,12 +65,31 @@ fun HomeScreen(
         Text(text = "\uD83D\uDC4B Hey Ashu", fontWeight = FontWeight.Medium)
         Text(text = "Discover tasty and healthy recipes", fontSize = 12.sp)
 
-        MySearchBar(
-            isActive = false,
-            onBack = {},
-            onActiveChange = { navController.navigate(Screen.Search.route) },
-            onSearch = { query -> }
-        ) {}
+        Spacer(modifier = Modifier.height(8.dp))
+        Card(
+            onClick = { navController.navigate(Screen.Search.route) },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(60.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.secondaryContainer
+            )
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Search,
+                    contentDescription = "search",
+                    tint = Color.Black
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                Text(text = "Search any recipe")
+            }
+        }
 
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(12.dp)

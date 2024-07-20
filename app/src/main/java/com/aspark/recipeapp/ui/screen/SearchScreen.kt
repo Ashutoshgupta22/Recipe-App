@@ -18,6 +18,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -35,6 +36,7 @@ fun SearchScreen(
     navController: NavController,
     searchViewModel: SearchViewModel = viewModel()
 ) {
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     BackHandler(enabled = true) {
         Log.i("BackHandler", "SearchScreen: back pressed")
@@ -46,9 +48,11 @@ fun SearchScreen(
     ) {
 
         MySearchBar(
-            isActive  = true,
-            onBack = { navController.popBackStack() },
-            onActiveChange = {},
+            onBack = {
+                keyboardController?.hide()
+                navController.popBackStack()
+            },
+            onClear = { searchViewModel.suggestions.clear() },
             onSearch = { query ->
                 searchViewModel.getSearchSuggestions(query)
             }
@@ -61,14 +65,16 @@ fun SearchScreen(
 }
 
 @Composable
-fun SuggestionList(suggestions: List<SearchSuggestionResponse>,
-                   onClick: (Long)-> Unit) {
+fun SuggestionList(
+    suggestions: List<SearchSuggestionResponse>,
+    onClick: (Long) -> Unit
+) {
 
     LazyColumn(
         contentPadding = PaddingValues(vertical = 16.dp, horizontal = 16.dp),
         modifier = Modifier
             .fillMaxWidth()
-    ){
+    ) {
         items(suggestions) { item: SearchSuggestionResponse ->
             Box(
                 modifier = Modifier

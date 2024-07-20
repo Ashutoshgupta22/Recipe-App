@@ -56,6 +56,7 @@ import androidx.navigation.NavController
 import coil.ImageLoader
 import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
+import coil.imageLoader
 import coil.request.ImageRequest
 import coil.size.Size
 import com.aspark.recipeapp.MyApplication
@@ -112,22 +113,17 @@ fun MyAsyncImage(
     url: String,
     modifier: Modifier = Modifier
 ) {
-
     val context = LocalContext.current
-    val imageLoader = remember{ ImageLoader(context) }
-    imageLoader.newBuilder()
-        .crossfade(true)
-        .build()
-
     val imageRequest = ImageRequest.Builder(context)
         .data(url)
+        .crossfade(true)
 //        .size(100, 100)
         .build()
 
     AsyncImage(
         model = imageRequest,
-        contentDescription ="" ,
-        imageLoader = imageLoader,
+        contentDescription = "",
+        imageLoader = context.imageLoader,
         modifier = modifier,
         contentScale = ContentScale.Crop,
         placeholder = painterResource(id = R.drawable.ic_launcher_background)
@@ -191,21 +187,19 @@ fun ExpandableCard(
 
 @Composable
 fun MySearchBar(
-    isActive: Boolean,
     onBack: () -> Unit,
-    onActiveChange: () -> Unit,
+    onClear: () -> Unit,
     onSearch: (String) -> Unit,
     content: @Composable (ColumnScope.() -> Unit)
 ) {
 
     var query by remember { mutableStateOf("") }
-    val active by remember { mutableStateOf(isActive) }
-    val focusRequester = remember{ FocusRequester()}
-    val focusManager = LocalFocusManager.current
+    val active by remember { mutableStateOf(true) }
+    val focusRequester = remember { FocusRequester() }
 
-    LaunchedEffect(active) {
-        if (active) focusRequester.requestFocus()
-        else focusManager.clearFocus()
+    LaunchedEffect(key1 = Unit) {
+        delay(100)
+        focusRequester.requestFocus()
     }
 
     SearchBar(
@@ -220,14 +214,12 @@ fun MySearchBar(
         active = active,
         onActiveChange = {
             if (active && !it) onBack()
-            else onActiveChange()
-//            isActive = it
+//            else onActiveChange()
         },
         placeholder = {
             Text(text = "Search any recipe")
         },
         leadingIcon = {
-            if (active)
                 IconButton(onClick = { onBack() },
                     modifier = Modifier
 
@@ -239,27 +231,26 @@ fun MySearchBar(
                             .fillMaxSize()
                     )
                 }
-            else Icon(imageVector = Icons.Rounded.Search, contentDescription = "")
         },
         trailingIcon = {
-                       if(query.isNotEmpty())
-                           IconButton(onClick = { query = "" }) {
-                               Icon(
-                                   imageVector = Icons.Rounded.Clear,
-                                   contentDescription = ""
-                               )
-                           }
+            if (query.isNotEmpty())
+                IconButton(onClick = {
+                    query = ""
+                    onClear()
+                }) {
+                    Icon(
+                        imageVector = Icons.Rounded.Clear,
+                        contentDescription = ""
+                    )
+                }
         },
         shape = RoundedCornerShape(12.dp),
         modifier = Modifier
             .fillMaxWidth()
             .padding(bottom = 8.dp)
             .focusRequester(focusRequester)
-            .focusable()
-
     ) {
         content()
     }
-
 }
 
