@@ -1,6 +1,5 @@
 package com.aspark.recipeapp.ui.screen
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,7 +28,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -40,8 +38,8 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.aspark.networking.model.RecipeResponse
 import com.aspark.recipeapp.ui.Screen
+import com.aspark.recipeapp.ui.component.MyAsyncImage
 import com.aspark.recipeapp.ui.component.MySearchBar
-import com.aspark.recipeapp.ui.component.rememberMyAsyncPainter
 import com.aspark.recipeapp.ui.theme.RecipeAppTheme
 import com.aspark.recipeapp.viewmodel.HomeViewModel
 
@@ -64,7 +62,7 @@ fun HomeScreen(
         Text(text = "Discover tasty and healthy recipes", fontSize = 12.sp)
 
         MySearchBar(
-            isActive = false ,
+            isActive = false,
             onBack = {},
             onActiveChange = { navController.navigate(Screen.Search.route) },
             onSearch = { query -> }
@@ -108,13 +106,10 @@ fun AllRecipes(recipe: RecipeResponse, cardClicked: (Long)-> Unit) {
             .height(100.dp)
     ) {
         Row {
-            Image(
-                painter = rememberMyAsyncPainter(recipe.image),
-                contentDescription = "",
+            MyAsyncImage(url = recipe.image,
                 modifier = Modifier
+                    .width(100.dp)
                     .fillMaxHeight()
-                    .width(100.dp),
-                contentScale = ContentScale.Crop,
             )
 
             Column(
@@ -164,11 +159,9 @@ fun PopularRecipes(popularRecipes: List<RecipeResponse>) {
                         .clip(RoundedCornerShape(16.dp)),
 
                     ) {
-                    Image(
-                        painter = rememberMyAsyncPainter(recipe.image),
-                        contentDescription = "",
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Crop,
+
+                    MyAsyncImage(url = recipe.image,
+                        modifier = Modifier.fillMaxSize()
                     )
 
                     Column(

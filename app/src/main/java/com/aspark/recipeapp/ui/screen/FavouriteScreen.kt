@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -29,7 +30,7 @@ import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
 import com.aspark.recipeapp.viewmodel.FavoriteViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.aspark.recipeapp.ui.component.rememberMyAsyncPainter
+import com.aspark.recipeapp.ui.component.MyAsyncImage
 
 @Composable
 fun FavouriteScreen(navController: NavController, viewModel: FavoriteViewModel = viewModel()) {
@@ -54,13 +55,11 @@ fun FavouriteScreen(navController: NavController, viewModel: FavoriteViewModel =
                     .height(100.dp)
             ) {
                 Row {
-                    Image(
-                        painter = rememberMyAsyncPainter(recipe.image),
-                        contentDescription = "",
+                    MyAsyncImage(
+                        url = recipe.image,
                         modifier = Modifier
-                            .fillMaxHeight()
-                            .width(100.dp),
-                        contentScale = ContentScale.Crop,
+                        .width(100.dp)
+                        .fillMaxHeight()
                     )
 
                     Column(

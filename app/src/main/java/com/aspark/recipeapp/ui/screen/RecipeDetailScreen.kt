@@ -1,6 +1,5 @@
 package com.aspark.recipeapp.ui.screen
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -38,7 +36,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -51,7 +48,7 @@ import com.aspark.networking.model.RecipeResponse
 import com.aspark.recipeapp.model.Recipe
 import com.aspark.recipeapp.ui.component.BoldTitle
 import com.aspark.recipeapp.ui.component.ExpandableCard
-import com.aspark.recipeapp.ui.component.rememberMyAsyncPainter
+import com.aspark.recipeapp.ui.component.MyAsyncImage
 import com.aspark.recipeapp.ui.theme.AppOrange
 import com.aspark.recipeapp.ui.theme.RecipeAppTheme
 import com.aspark.recipeapp.viewmodel.RecipeDetailViewModel
@@ -131,13 +128,10 @@ fun Equipments(equipmentList: List<Equipment>) {
                 modifier = Modifier,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Image(
-                    painter = rememberMyAsyncPainter(equipment.image),
-                    contentDescription = "",
-                    modifier = Modifier
+                MyAsyncImage(
+                    url = equipment.image, modifier = Modifier
                         .size(86.dp)
-                        .clip(CircleShape),
-                    contentScale = ContentScale.Crop,
+                        .clip(CircleShape)
                 )
 
                 Text(text = equipment.name, fontSize = 12.sp, color = Color.Black)
@@ -162,13 +156,11 @@ fun Ingredients(ingredientList: List<Ingredient>) {
                 modifier = Modifier,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Image(
-                    painter = rememberMyAsyncPainter(ingredient.image),
-                    contentDescription = "",
+                MyAsyncImage(
+                    url = ingredient.image,
                     modifier = Modifier
                         .size(86.dp)
-                        .clip(CircleShape),
-                    contentScale = ContentScale.Crop,
+                        .clip(CircleShape)
                 )
 
                 Text(text = ingredient.name, fontSize = 12.sp, color = Color.Black)
@@ -248,20 +240,18 @@ fun QuickCards(recipe: RecipeResponse) {
 }
 
 @Composable
-fun RecipeImage(recipe: RecipeResponse, onClick: (RecipeResponse)-> Unit) {
+fun RecipeImage(recipe: RecipeResponse, onFavIconClick: (RecipeResponse)-> Unit) {
 
     var clicked by remember{ mutableStateOf(false) }
 
     Box(
         modifier = Modifier
     ) {
-        Image(
-            painter = rememberMyAsyncPainter(recipe.image),
-            contentDescription = "",
+        MyAsyncImage(
+            url = recipe.image,
             modifier = Modifier
                 .fillMaxWidth()
-                .width(360.dp),
-            contentScale = ContentScale.Crop,
+                .height(300.dp)
         )
 
         Text(
@@ -275,7 +265,7 @@ fun RecipeImage(recipe: RecipeResponse, onClick: (RecipeResponse)-> Unit) {
         )
         IconButton(
             onClick = {
-                onClick(recipe)
+                onFavIconClick(recipe)
                 clicked = !clicked
                       },
             modifier = Modifier

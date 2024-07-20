@@ -21,6 +21,12 @@ class HomeViewModel() : ViewModel() {
 
         if (isDataLoaded) return
 
+        randomRecipes.clear()
+        randomRecipes.add(RecipeResponse())
+        randomRecipes.add(RecipeResponse())
+        randomRecipes.add(RecipeResponse())
+        randomRecipes.add(RecipeResponse())
+
         viewModelScope.launch {
             val recipes = repository.getRandomRecipes()
             if (recipes != null) {

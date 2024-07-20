@@ -33,6 +33,7 @@ import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.currentCompositionLocalContext
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,13 +45,19 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import coil.ImageLoader
+import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
+import coil.size.Size
 import com.aspark.recipeapp.MyApplication
 import com.aspark.recipeapp.R
 import com.aspark.recipeapp.ui.Screen
@@ -101,15 +108,31 @@ fun BottomNavigationBar(navController: NavController) {
 }
 
 @Composable
-fun rememberMyAsyncPainter(
-    url: String
-) = rememberAsyncImagePainter(
-    ImageRequest.Builder(LocalContext.current).data(data = url)
-        .apply(block = fun ImageRequest.Builder.() {
-            crossfade(true)
-            placeholder(R.drawable.ic_launcher_background)
-        }).build()
-)
+fun MyAsyncImage(
+    url: String,
+    modifier: Modifier = Modifier
+) {
+
+    val context = LocalContext.current
+    val imageLoader = remember{ ImageLoader(context) }
+    imageLoader.newBuilder()
+        .crossfade(true)
+        .build()
+
+    val imageRequest = ImageRequest.Builder(context)
+        .data(url)
+//        .size(100, 100)
+        .build()
+
+    AsyncImage(
+        model = imageRequest,
+        contentDescription ="" ,
+        imageLoader = imageLoader,
+        modifier = modifier,
+        contentScale = ContentScale.Crop,
+        placeholder = painterResource(id = R.drawable.ic_launcher_background)
+    )
+}
 
 @Composable
 fun BoldTitle(title: String) {
