@@ -26,6 +26,10 @@ class HomeViewModel() : ViewModel() {
         database.equipmentDao()
     )
 
+    init {
+        getRandomRecipes()
+    }
+
     val randomRecipes: StateFlow<MyResult<List<RecipeResponse>>> = repository.getRandomRecipes()
         .stateIn(
             viewModelScope,

@@ -4,12 +4,9 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import android.content.Context
-import com.aspark.recipeapp.model.EquipmentEntity
-import com.aspark.recipeapp.model.IngredientEntity
-import com.aspark.recipeapp.model.RecipeEntity
 
 @Database(entities = [RecipeEntity::class, IngredientEntity::class, EquipmentEntity::class],
-    version = 2)
+    version = 3)
 abstract class RecipeDatabase : RoomDatabase() {
     abstract fun recipeDao(): RecipeDao
     abstract fun ingredientDao(): IngredientDao

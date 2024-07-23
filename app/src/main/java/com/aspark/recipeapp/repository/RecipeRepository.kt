@@ -7,9 +7,9 @@ import com.aspark.networking.model.Ingredient
 import com.aspark.networking.model.RecipeResponse
 import com.aspark.networking.model.SearchSuggestionResponse
 import com.aspark.recipeapp.MyResult
-import com.aspark.recipeapp.model.EquipmentEntity
-import com.aspark.recipeapp.model.IngredientEntity
-import com.aspark.recipeapp.model.RecipeEntity
+import com.aspark.recipeapp.room.EquipmentEntity
+import com.aspark.recipeapp.room.IngredientEntity
+import com.aspark.recipeapp.room.RecipeEntity
 import com.aspark.recipeapp.room.EquipmentDao
 import com.aspark.recipeapp.room.IngredientDao
 import com.aspark.recipeapp.room.RecipeDao
@@ -31,7 +31,7 @@ class RecipeRepository(
         emit(MyResult.Success(getCachedRandomRecipes()))
 
         try {
-            val remoteResponse = apiService.getRandomRecipes(number = 15)
+            val remoteResponse = apiService.getRandomRecipes(number = 25)
             val remoteRecipes = remoteResponse.body()?.recipes?.toImmutableList()!!
 
             updateCache(remoteRecipes)
@@ -54,6 +54,8 @@ class RecipeRepository(
 
     private suspend fun updateCache(recipes: List<RecipeResponse>) {
         Log.i("RecipeRepository", "updateCache: updating cache")
+
+        recipeDao.deleteAllRecipes()
         recipes.forEach {
             insertRecipe(it)
         }

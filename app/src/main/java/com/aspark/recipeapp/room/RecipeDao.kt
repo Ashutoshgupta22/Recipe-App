@@ -4,9 +4,6 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.aspark.recipeapp.model.EquipmentEntity
-import com.aspark.recipeapp.model.IngredientEntity
-import com.aspark.recipeapp.model.RecipeEntity
 
 @Dao
 interface RecipeDao {
@@ -22,6 +19,9 @@ interface RecipeDao {
 
     @Query("select * from recipe where id = :recipeId")
     suspend fun getRecipeById(recipeId: Long): RecipeEntity
+
+    @Query("delete from recipe")
+    suspend fun deleteAllRecipes(): Int
 }
 
 @Dao

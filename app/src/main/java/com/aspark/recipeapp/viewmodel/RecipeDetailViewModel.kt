@@ -9,7 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.aspark.networking.ApiClient
 import com.aspark.networking.model.RecipeResponse
 import com.aspark.recipeapp.MyApplication
-import com.aspark.recipeapp.model.RecipeEntity
+import com.aspark.recipeapp.room.RecipeEntity
 import com.aspark.recipeapp.repository.RecipeRepository
 import com.aspark.recipeapp.room.RecipeDatabase
 import kotlinx.coroutines.launch

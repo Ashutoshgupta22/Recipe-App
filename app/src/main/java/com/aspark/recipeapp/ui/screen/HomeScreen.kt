@@ -1,9 +1,11 @@
 package com.aspark.recipeapp.ui.screen
 
 import android.util.Log
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -59,9 +61,9 @@ fun HomeScreen(
     homeViewModel: HomeViewModel = viewModel()
 ) {
 
-    LaunchedEffect(Unit) {
-        homeViewModel.getRandomRecipes()
-    }
+//    LaunchedEffect(Unit) {
+//        homeViewModel.getRandomRecipes()
+//    }
 
     Column(
         modifier = Modifier.padding(16.dp)
@@ -80,11 +82,14 @@ fun HomeScreen(
         val randomRecipes by homeViewModel.randomRecipes.collectAsState()
 
         LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            contentPadding = PaddingValues(bottom = 70.dp)
         ) {
 
             item {
-                PopularRecipes(randomRecipes)
+                PopularRecipes(randomRecipes) { recipeId ->
+                    navController.navigate(Screen.RecipeDetail.createRoute(recipeId))
+                }
 
                 Spacer(modifier = Modifier.height(32.dp))
 
@@ -98,13 +103,10 @@ fun HomeScreen(
                 is MyResult.Success -> {
                     val data = (randomRecipes as MyResult.Success<List<RecipeResponse>>).data
 
-                    itemsIndexed(data) { index, recipe ->
+                    itemsIndexed(data.drop(10)) { index, recipe ->
                         AllRecipesItem(recipe) { id ->
                             navController.navigate(Screen.RecipeDetail.createRoute(id))
                         }
-
-                        if (index == data.lastIndex)
-                            Spacer(modifier = Modifier.height(80.dp))
                     }
                 }
                 is MyResult.Failure -> {
@@ -192,7 +194,7 @@ fun AllRecipesItem(recipe: RecipeResponse, cardClicked: (Long) -> Unit) {
 }
 
 @Composable
-fun PopularRecipes(popularRecipes: MyResult<List<RecipeResponse>>) {
+fun PopularRecipes(popularRecipes: MyResult<List<RecipeResponse>>, onClick: (Long) -> Unit) {
 
     Column(
         modifier = Modifier
@@ -209,8 +211,8 @@ fun PopularRecipes(popularRecipes: MyResult<List<RecipeResponse>>) {
                 LazyRow(
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    items(popularRecipes.data) { recipe ->
-                        PopularRecipeItem(recipe)
+                    itemsIndexed(popularRecipes.data.take(10)) { index, recipe ->
+                        PopularRecipeItem(recipe) { recipeId -> onClick(recipeId) }
                     }
                 }
             }
@@ -225,12 +227,13 @@ fun PopularRecipes(popularRecipes: MyResult<List<RecipeResponse>>) {
 }
 
 @Composable
-fun PopularRecipeItem(recipe: RecipeResponse) {
+fun PopularRecipeItem(recipe: RecipeResponse, onClick: (Long) -> Unit) {
     Box(
         modifier = Modifier
             .size(156.dp)
             .padding(top = 16.dp)
-            .clip(RoundedCornerShape(16.dp)),
+            .clip(RoundedCornerShape(16.dp))
+            .clickable { onClick(recipe.id) },
 
         ) {
 
