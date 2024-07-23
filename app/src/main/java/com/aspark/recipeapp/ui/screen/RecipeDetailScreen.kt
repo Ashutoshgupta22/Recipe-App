@@ -45,7 +45,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.aspark.networking.model.Equipment
 import com.aspark.networking.model.Ingredient
 import com.aspark.networking.model.RecipeResponse
-import com.aspark.recipeapp.model.Recipe
+import com.aspark.recipeapp.model.RecipeEntity
 import com.aspark.recipeapp.ui.component.BoldTitle
 import com.aspark.recipeapp.ui.component.ExpandableCard
 import com.aspark.recipeapp.ui.component.MyAsyncImage
@@ -69,10 +69,10 @@ fun RecipeDetailScreen(
             .verticalScroll(state = rememberScrollState(), enabled = true)
     ) {
 
-        RecipeImage(detailViewModel.recipe) {recipe ->
-            detailViewModel.addToFavorites(
-                Recipe(recipe.id, recipe.title, recipe.image, true)
-            )
+        RecipeImage(detailViewModel.recipe) { recipe ->
+//            detailViewModel.addToFavorites(
+//                RecipeEntity(recipe.id, recipe.title, recipe.image, ,23,true)
+//            )
         }
 
         Column(

@@ -6,14 +6,20 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.aspark.networking.ApiClient
 import com.aspark.networking.model.SearchSuggestionResponse
+import com.aspark.recipeapp.MyApplication
 import com.aspark.recipeapp.repository.RecipeRepository
+import com.aspark.recipeapp.room.RecipeDatabase
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class SearchViewModel : ViewModel() {
-    private val repository: RecipeRepository = RecipeRepository(ApiClient.apiService, null)
+    private val database = RecipeDatabase.getDatabase(MyApplication.applicationContext())
+    private val repository: RecipeRepository = RecipeRepository(
+        ApiClient.apiService,  database.recipeDao(), database.ingredientDao(),
+        database.equipmentDao()
+    )
 
     var suggestions = mutableStateListOf<SearchSuggestionResponse>()
         private set

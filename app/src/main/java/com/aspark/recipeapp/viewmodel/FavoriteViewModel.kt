@@ -5,17 +5,20 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.aspark.networking.ApiClient
 import com.aspark.recipeapp.MyApplication
-import com.aspark.recipeapp.model.Recipe
+import com.aspark.recipeapp.model.RecipeEntity
 import com.aspark.recipeapp.repository.RecipeRepository
 import com.aspark.recipeapp.room.RecipeDatabase
 import kotlinx.coroutines.launch
 
 class FavoriteViewModel: ViewModel() {
 
-    private val recipeDao = RecipeDatabase.getDatabase(MyApplication.applicationContext()).recipeDao()
-    private val repository: RecipeRepository = RecipeRepository(ApiClient.apiService, recipeDao )
+    private val database = RecipeDatabase.getDatabase(MyApplication.applicationContext())
+    private val repository: RecipeRepository = RecipeRepository(
+        ApiClient.apiService,  database.recipeDao(), database.ingredientDao(),
+        database.equipmentDao()
+    )
 
-    var favRecipes = mutableStateListOf<Recipe>()
+    var favRecipes = mutableStateListOf<RecipeEntity>()
         private set
 
     fun getFavRecipes() {
@@ -25,7 +28,7 @@ class FavoriteViewModel: ViewModel() {
         }
     }
 
-    fun addToFavorites(recipe: Recipe) = viewModelScope.launch {
+    fun addToFavorites(recipe: RecipeEntity) = viewModelScope.launch {
         repository.addToFavorites(recipe)
     }
 

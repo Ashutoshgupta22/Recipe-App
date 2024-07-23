@@ -46,7 +46,6 @@ fun SearchScreen(
     Column(
         modifier = Modifier
     ) {
-
         MySearchBar(
             onBack = {
                 keyboardController?.hide()
@@ -69,7 +68,6 @@ fun SuggestionList(
     suggestions: List<SearchSuggestionResponse>,
     onClick: (Long) -> Unit
 ) {
-
     LazyColumn(
         contentPadding = PaddingValues(vertical = 16.dp, horizontal = 16.dp),
         modifier = Modifier
@@ -91,7 +89,6 @@ fun SuggestionList(
             }
         }
     }
-
 }
 
 @Preview(apiLevel = 33)

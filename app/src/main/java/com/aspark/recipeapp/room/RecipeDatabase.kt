@@ -4,11 +4,16 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import android.content.Context
-import com.aspark.recipeapp.model.Recipe
+import com.aspark.recipeapp.model.EquipmentEntity
+import com.aspark.recipeapp.model.IngredientEntity
+import com.aspark.recipeapp.model.RecipeEntity
 
-@Database(entities = [Recipe::class], version = 1)
+@Database(entities = [RecipeEntity::class, IngredientEntity::class, EquipmentEntity::class],
+    version = 2)
 abstract class RecipeDatabase : RoomDatabase() {
     abstract fun recipeDao(): RecipeDao
+    abstract fun ingredientDao(): IngredientDao
+    abstract fun equipmentDao(): EquipmentDao
 
     companion object {
         @Volatile private var instance: RecipeDatabase? = null
@@ -19,6 +24,9 @@ abstract class RecipeDatabase : RoomDatabase() {
             }
 
         private fun buildDatabase(context: Context) =
-            Room.databaseBuilder(context.applicationContext, RecipeDatabase::class.java, "recipes.db").build()
+            Room.databaseBuilder(context.applicationContext, RecipeDatabase::class.java,
+                "recipes.db")
+                .fallbackToDestructiveMigration()
+                .build()
     }
 }

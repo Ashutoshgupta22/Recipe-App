@@ -27,21 +27,14 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-
-//            WindowCompat.setDecorFitsSystemWindows(window, false)
-
             RecipeAppTheme {
-                // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    val context = LocalContext.current
                     val navController = rememberNavController()
                     var showBottomNavBar by remember {mutableStateOf(true)}
-                    val imageLoader = remember{
-                        (context.applicationContext as MyApplication).imageLoader
-                    }
+
                         Scaffold(
                             bottomBar = {
                                 if (showBottomNavBar)
@@ -49,7 +42,6 @@ class MainActivity : ComponentActivity() {
                             }
                         ) {
                             NavGraph(navController, it) { route ->
-
                                 showBottomNavBar = route == Screen.Home.route
                                         || route == Screen.Favorites.route
                             }

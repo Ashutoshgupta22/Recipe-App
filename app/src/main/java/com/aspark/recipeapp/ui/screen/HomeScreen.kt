@@ -1,5 +1,6 @@
 package com.aspark.recipeapp.ui.screen
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,6 +22,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -29,6 +31,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -42,6 +46,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.aspark.networking.model.RecipeResponse
+import com.aspark.recipeapp.MyResult
 import com.aspark.recipeapp.ui.Screen
 import com.aspark.recipeapp.ui.component.MyAsyncImage
 import com.aspark.recipeapp.ui.theme.RecipeAppTheme
@@ -66,36 +71,20 @@ fun HomeScreen(
         Text(text = "Discover tasty and healthy recipes", fontSize = 12.sp)
 
         Spacer(modifier = Modifier.height(8.dp))
-        Card(
-            onClick = { navController.navigate(Screen.Search.route) },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(60.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.secondaryContainer
-            )
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Search,
-                    contentDescription = "search",
-                    tint = Color.Black
-                )
-                Spacer(modifier = Modifier.width(12.dp))
-                Text(text = "Search any recipe")
-            }
+        SearchBarDuplicate {
+            navController.navigate(Screen.Search.route)
         }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        val randomRecipes by homeViewModel.randomRecipes.collectAsState()
 
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
+
             item {
-                PopularRecipes(homeViewModel.randomRecipes.toList())
+                PopularRecipes(randomRecipes)
 
                 Spacer(modifier = Modifier.height(32.dp))
 
@@ -105,21 +94,65 @@ fun HomeScreen(
                 )
             }
 
-            itemsIndexed(homeViewModel.randomRecipes.toList()) { index, recipe ->
-                AllRecipes(recipe) { id ->
-                    navController.navigate(Screen.RecipeDetail.createRoute(id))
-                }
+            when (randomRecipes) {
+                is MyResult.Success -> {
+                    val data = (randomRecipes as MyResult.Success<List<RecipeResponse>>).data
 
-                if (index == homeViewModel.randomRecipes.lastIndex)
-                    Spacer(modifier = Modifier.height(80.dp))
+                    itemsIndexed(data) { index, recipe ->
+                        AllRecipesItem(recipe) { id ->
+                            navController.navigate(Screen.RecipeDetail.createRoute(id))
+                        }
+
+                        if (index == data.lastIndex)
+                            Spacer(modifier = Modifier.height(80.dp))
+                    }
+                }
+                is MyResult.Failure -> {
+                    Log.e(
+                        "HomeScreen", "HomeScreen: RandomRecipes Failed",
+                        (randomRecipes as MyResult.Failure).exception
+                    )
+                }
+                is MyResult.Loading -> {
+                    item {
+                        LoadingIndicator()
+                    }
+                }
             }
         }
-
     }
 }
 
 @Composable
-fun AllRecipes(recipe: RecipeResponse, cardClicked: (Long)-> Unit) {
+fun SearchBarDuplicate(onClick: ()-> Unit) {
+    Card(
+        onClick = onClick,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(60.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.secondaryContainer
+        )
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Default.Search,
+                contentDescription = "search",
+                tint = Color.Black
+            )
+            Spacer(modifier = Modifier.width(12.dp))
+            Text(text = "Search any recipe")
+        }
+    }
+}
+
+@Composable
+fun AllRecipesItem(recipe: RecipeResponse, cardClicked: (Long) -> Unit) {
 
     OutlinedCard(
         onClick = { cardClicked(recipe.id) },
@@ -129,7 +162,8 @@ fun AllRecipes(recipe: RecipeResponse, cardClicked: (Long)-> Unit) {
             .height(100.dp)
     ) {
         Row {
-            MyAsyncImage(url = recipe.image,
+            MyAsyncImage(
+                url = recipe.image,
                 modifier = Modifier
                     .width(100.dp)
                     .fillMaxHeight()
@@ -157,63 +191,79 @@ fun AllRecipes(recipe: RecipeResponse, cardClicked: (Long)-> Unit) {
     }
 }
 
-
 @Composable
-fun PopularRecipes(popularRecipes: List<RecipeResponse>) {
+fun PopularRecipes(popularRecipes: MyResult<List<RecipeResponse>>) {
 
     Column(
         modifier = Modifier
-            .padding(top = 32.dp)
+            .padding(top = 24.dp)
     ) {
         Text(
             text = "Popular Recipes", fontWeight = FontWeight.Bold,
             fontSize = 16.sp
         )
 
-        LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
+        when (popularRecipes) {
+            is MyResult.Success -> {
 
-            items(popularRecipes) { recipe ->
-                Box(
-                    modifier = Modifier
-                        .size(156.dp)
-                        .padding(top = 16.dp)
-                        .clip(RoundedCornerShape(16.dp)),
-
-                    ) {
-
-                    MyAsyncImage(url = recipe.image,
-                        modifier = Modifier.fillMaxSize()
-                    )
-
-                    Column(
-                        modifier = Modifier
-                            .align(Alignment.BottomStart)
-                            .padding(start = 8.dp)
-                    ) {
-
-                        Text(
-                            text = recipe.title, fontSize = 14.sp,
-                            color = Color.White, fontWeight = FontWeight.Medium,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-
-                        Text(
-                            text = "Ready in ${recipe.readyInMinutes} min", fontSize = 12.sp,
-                            color = Color.Gray, fontWeight = FontWeight.Medium,
-                            maxLines = 1,
-                        )
+                LazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    items(popularRecipes.data) { recipe ->
+                        PopularRecipeItem(recipe)
                     }
-
-
                 }
-
+            }
+            is MyResult.Failure -> {
+                Log.e("HomeViewModel", "PopularRecipes: failed", popularRecipes.exception)
+            }
+            is MyResult.Loading -> {
+                LoadingIndicator()
             }
         }
     }
+}
 
+@Composable
+fun PopularRecipeItem(recipe: RecipeResponse) {
+    Box(
+        modifier = Modifier
+            .size(156.dp)
+            .padding(top = 16.dp)
+            .clip(RoundedCornerShape(16.dp)),
+
+        ) {
+
+        MyAsyncImage(
+            url = recipe.image,
+            modifier = Modifier.fillMaxSize()
+        )
+
+        Column(
+            modifier = Modifier
+                .align(Alignment.BottomStart)
+                .padding(start = 8.dp)
+        ) {
+
+            Text(
+                text = recipe.title, fontSize = 14.sp,
+                color = Color.White, fontWeight = FontWeight.Medium,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+
+            Text(
+                text = "Ready in ${recipe.readyInMinutes} min", fontSize = 12.sp,
+                color = Color.Gray, fontWeight = FontWeight.Medium,
+                maxLines = 1,
+            )
+        }
+    }
+}
+
+@Composable
+fun LoadingIndicator() {
+    CircularProgressIndicator()
 }
 
 @Preview(apiLevel = 33)
