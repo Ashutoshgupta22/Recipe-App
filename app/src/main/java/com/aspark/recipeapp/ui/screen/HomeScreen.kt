@@ -1,6 +1,7 @@
 package com.aspark.recipeapp.ui.screen
 
 import android.util.Log
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -38,6 +39,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -242,6 +244,21 @@ fun PopularRecipeItem(recipe: RecipeResponse, onClick: (Long) -> Unit) {
             modifier = Modifier.fillMaxSize()
         )
 
+        //to add black gradient tint
+        Box(modifier = Modifier
+            .fillMaxSize()
+            .background(
+                Brush.verticalGradient(
+                    colors = listOf(
+                        Color.Transparent,
+                        Color.Black.copy(alpha = 0.7f)
+                    ),
+                    startY = 0f,
+                    endY = Float.POSITIVE_INFINITY
+                )
+            )
+        )
+
         Column(
             modifier = Modifier
                 .align(Alignment.BottomStart)
@@ -257,7 +274,7 @@ fun PopularRecipeItem(recipe: RecipeResponse, onClick: (Long) -> Unit) {
 
             Text(
                 text = "Ready in ${recipe.readyInMinutes} min", fontSize = 12.sp,
-                color = Color.Gray, fontWeight = FontWeight.Medium,
+                color = Color.LightGray, fontWeight = FontWeight.Medium,
                 maxLines = 1,
             )
         }
