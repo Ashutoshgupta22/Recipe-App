@@ -4,6 +4,11 @@ package com.aspark.recipeapp.ui.component
 
 import android.util.Log
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -41,16 +46,22 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.ImageLoader
@@ -126,7 +137,7 @@ fun MyAsyncImage(
         imageLoader = context.imageLoader,
         modifier = modifier,
         contentScale = ContentScale.Crop,
-        placeholder = painterResource(id = R.drawable.ic_launcher_background)
+//        placeholder = painterResource(id = R.drawable.ic_launcher_background)
     )
 }
 
@@ -253,4 +264,48 @@ fun MySearchBar(
         content()
     }
 }
+
+@Composable
+fun Modifier.shimmerEffect(): Modifier = composed {
+    var size by remember {
+        mutableStateOf(IntSize.Zero)
+    }
+
+    val transition = rememberInfiniteTransition(label = "infinite")
+    val startOffsetX by transition.animateFloat(
+        initialValue = -3 * size.width.toFloat(),
+        targetValue = 3 * size.width.toFloat(),
+        animationSpec = infiniteRepeatable(
+            animation = tween(
+                durationMillis = 1200,
+            )
+        ), label = "shimmer"
+    )
+
+    background(
+        brush = Brush.linearGradient(
+            colors = listOf(
+                Color(0xFFD9D7D7),
+                Color(0xFFB7B7B7),
+                Color(0xFFD9D7D7),
+            ),
+            start = Offset(startOffsetX, 0f),
+            end = Offset(startOffsetX + size.width.toFloat(), size.height.toFloat())
+        )
+    ).onGloballyPositioned {
+        size = it.size
+    }
+}
+
+@Preview
+@Composable
+private fun PreviewComponent() {
+    MyAsyncImage(
+        url = "",
+        modifier = Modifier
+            .size(160.dp)
+            .shimmerEffect()
+    )
+}
+
 

@@ -283,7 +283,7 @@ fun PopularRecipeItem(recipe: RecipeResponse, onClick: (Long) -> Unit) {
 
 @Composable
 fun LoadingIndicator() {
-    CircularProgressIndicator()
+//    CircularProgressIndicator()
 }
 
 @Preview(apiLevel = 33)

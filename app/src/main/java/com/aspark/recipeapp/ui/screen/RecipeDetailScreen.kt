@@ -1,5 +1,7 @@
 package com.aspark.recipeapp.ui.screen
 
+import android.util.Log
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,6 +29,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -45,30 +48,50 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.aspark.networking.model.Equipment
 import com.aspark.networking.model.Ingredient
 import com.aspark.networking.model.RecipeResponse
+import com.aspark.recipeapp.MyResult
 import com.aspark.recipeapp.ui.component.BoldTitle
 import com.aspark.recipeapp.ui.component.ExpandableCard
 import com.aspark.recipeapp.ui.component.MyAsyncImage
+import com.aspark.recipeapp.ui.component.shimmerEffect
 import com.aspark.recipeapp.ui.theme.AppOrange
 import com.aspark.recipeapp.ui.theme.RecipeAppTheme
 import com.aspark.recipeapp.viewmodel.RecipeDetailViewModel
+import kotlinx.coroutines.delay
 
 @Composable
 fun RecipeDetailScreen(
     id: Long,
     detailViewModel: RecipeDetailViewModel = viewModel()
 ) {
-
     LaunchedEffect(Unit) {
+//        delay(7000)
         detailViewModel.getRecipeById(id)
     }
 
+    when(val recipe = detailViewModel.recipe.collectAsState().value) {
+        is MyResult.Success -> {
+            Log.i("RecipeDetailScreen", "RecipeDetailScreen: Success")
+
+            Content(recipe.data)
+        }
+        is MyResult.Failure -> {
+            ErrorScreen()
+        }
+        MyResult.Loading -> {
+            Log.i("RecipeDetailScreen", "RecipeDetailScreen: Loading")
+            Shimmer()
+        }
+    }
+}
+
+@Composable
+fun Content(recipe: RecipeResponse) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .verticalScroll(state = rememberScrollState(), enabled = true)
     ) {
-
-        RecipeImage(detailViewModel.recipe) { recipe ->
+        RecipeImage(recipe) { it ->
 //            detailViewModel.addToFavorites(
 //                RecipeEntity(recipe.id, recipe.title, recipe.image, ,23,true)
 //            )
@@ -80,27 +103,27 @@ fun RecipeDetailScreen(
         ) {
             Spacer(modifier = Modifier.height(16.dp))
 
-            QuickCards(detailViewModel.recipe)
+            QuickCards(recipe)
             Spacer(modifier = Modifier.height(32.dp))
 
-            Ingredients(detailViewModel.recipe.extendedIngredients)
+            Ingredients(recipe.extendedIngredients)
             Spacer(modifier = Modifier.height(32.dp))
 
             BoldTitle(title = "Instructions")
 
             Text(
-                text = detailViewModel.recipe.instructions,
+                text = recipe.instructions,
                 fontSize = 14.sp
             )
             Spacer(modifier = Modifier.height(32.dp))
 
-            Equipments(detailViewModel.recipe.equipment)
+            Equipments(recipe.equipment)
             Spacer(modifier = Modifier.height(32.dp))
 
             BoldTitle(title = "Quick Summary")
 
             Text(
-                text = detailViewModel.recipe.summary,
+                text = recipe.summary,
                 fontSize = 14.sp
             )
         }
@@ -112,6 +135,66 @@ fun RecipeDetailScreen(
 
         ExpandableCard(title = "Good for health nutrition", description = "Some Information")
         Spacer(modifier = Modifier.height(16.dp))
+    }
+}
+
+@Composable
+fun Shimmer() {
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column {
+            MyAsyncImage(
+                url = "",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(300.dp)
+                    .shimmerEffect()
+            )
+
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier
+                    .padding( horizontal = 16.dp, vertical = 32.dp)
+            ) {
+                repeat(3) {
+                    OutlinedCard(
+                        modifier = Modifier
+                            .size(70.dp)
+                            .weight(1f),
+                        shape = RoundedCornerShape(12.dp),
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .shimmerEffect()
+                        )
+                    }
+                }
+            }
+
+            repeat(3) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(16.dp)
+                        .padding(vertical = 16.dp)
+                        .shimmerEffect()
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun ErrorScreen() {
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(text = "Oops! something went wrong!")
     }
 }
 

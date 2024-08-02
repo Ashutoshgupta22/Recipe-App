@@ -27,7 +27,7 @@ class HomeViewModel() : ViewModel() {
     )
 
     init {
-        getRandomRecipes()
+//        getRandomRecipes()
     }
 
     val randomRecipes: StateFlow<MyResult<List<RecipeResponse>>> = repository.getRandomRecipes()

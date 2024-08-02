@@ -16,6 +16,7 @@ import com.aspark.recipeapp.room.IngredientDao
 import com.aspark.recipeapp.room.RecipeDao
 import com.aspark.recipeapp.utility.SaveTime
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import okhttp3.internal.toImmutableList
@@ -111,12 +112,21 @@ class RecipeRepository(
         }
     }
 
-    suspend fun getRecipeById(recipeId: Long): RecipeResponse? {
-        val recipe = apiService.getRecipeById(id = recipeId)
-        val ingredients = ingredientDao.getIngredientsForRecipe(recipeId)
-        val equipment = equipmentDao.getEquipmentForRecipe(recipeId)
+    fun getRecipeById(recipeId: Long): Flow<MyResult<RecipeResponse>> = flow {
+//        val recipe = apiService.getRecipeById(id = recipeId)
+//        val ingredients = ingredientDao.getIngredientsForRecipe(recipeId)
+//        val equipment = equipmentDao.getEquipmentForRecipe(recipeId)
+//
+//        return if (recipe.isSuccessful) recipe.body() else null
 
-        return if (recipe.isSuccessful) recipe.body() else null
+        try {
+            Log.i("Repo", "getRecipeById: fetching recipe by id")
+            val recipe = apiService.getRecipeById(id = recipeId).body()!!
+
+            emit(MyResult.Success(recipe))
+        } catch (e: Exception) {
+            emit(MyResult.Failure(e))
+        }
     }
 
     suspend fun getFavoriteRecipes() = recipeDao.getFavoriteRecipes()
