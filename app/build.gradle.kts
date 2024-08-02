@@ -53,6 +53,9 @@ android {
 
 dependencies {
 
+    //datastore
+    implementation(libs.androidx.datastore.preferences)
+
     // Room for local caching
     implementation(libs.androidx.room.runtime)
     ksp(libs.androidx.room.compiler)

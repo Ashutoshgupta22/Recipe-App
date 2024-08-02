@@ -6,6 +6,7 @@ import com.aspark.networking.model.Equipment
 import com.aspark.networking.model.Ingredient
 import com.aspark.networking.model.RecipeResponse
 import com.aspark.networking.model.SearchSuggestionResponse
+import com.aspark.recipeapp.MyApplication
 import com.aspark.recipeapp.MyResult
 import com.aspark.recipeapp.room.EquipmentEntity
 import com.aspark.recipeapp.room.IngredientEntity
@@ -13,7 +14,9 @@ import com.aspark.recipeapp.room.RecipeEntity
 import com.aspark.recipeapp.room.EquipmentDao
 import com.aspark.recipeapp.room.IngredientDao
 import com.aspark.recipeapp.room.RecipeDao
+import com.aspark.recipeapp.utility.SaveTime
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import okhttp3.internal.toImmutableList
 
@@ -22,7 +25,8 @@ class RecipeRepository(
     private val recipeDao: RecipeDao,
     private val ingredientDao: IngredientDao,
     private val equipmentDao: EquipmentDao
-    ) {
+) {
+    private val saveTime by lazy {  SaveTime(MyApplication.applicationContext()) }
 
     // Function to get recipes, first from cache then from network
     fun getRandomRecipes(): Flow<MyResult<List<RecipeResponse>>> = flow {
@@ -30,16 +34,17 @@ class RecipeRepository(
         // Emit cached data first
         emit(MyResult.Success(getCachedRandomRecipes()))
 
-        try {
-            val remoteResponse = apiService.getRandomRecipes(number = 25)
-            val remoteRecipes = remoteResponse.body()?.recipes?.toImmutableList()!!
+        if (isCacheOld()) { //fetch from remote if cache is old
+            try {
+                val remoteResponse = apiService.getRandomRecipes(number = 25)
+                val remoteRecipes = remoteResponse.body()?.recipes?.toImmutableList()!!
 
-            updateCache(remoteRecipes)
-            emit(MyResult.Success(remoteRecipes))
-        } catch (e: Exception) {
-
-            if (getCachedRandomRecipes().isEmpty())
-                emit(MyResult.Failure(e))
+                updateCache(remoteRecipes)
+                emit(MyResult.Success(remoteRecipes))
+            } catch (e: Exception) {
+                if (getCachedRandomRecipes().isEmpty())
+                    emit(MyResult.Failure(e))
+            }
         }
     }
 
@@ -53,7 +58,8 @@ class RecipeRepository(
     }
 
     private suspend fun updateCache(recipes: List<RecipeResponse>) {
-        Log.i("RecipeRepository", "updateCache: updating cache")
+        Log.i("RecipeRepository", "updateCache: cache is old, updating cache")
+        saveTime.saveCurrentTime()
 
         recipeDao.deleteAllRecipes()
         recipes.forEach {
@@ -76,12 +82,12 @@ class RecipeRepository(
         recipeDao.insertRecipe(recipeEntity)
 
         val ingredientEntities = recipe.extendedIngredients.map { ingredient ->
-                IngredientEntity(
-                    recipeId = recipe.id,
-                    name = ingredient.name,
-                    amount = ingredient.amount,
-                    unit = ingredient.unit
-                )
+            IngredientEntity(
+                recipeId = recipe.id,
+                name = ingredient.name,
+                amount = ingredient.amount,
+                unit = ingredient.unit
+            )
         }
         ingredientDao.insertIngredients(ingredientEntities)
 
@@ -100,13 +106,13 @@ class RecipeRepository(
 
         return if (response.isSuccessful) response.body()
         else {
-            Log.e("RecipeRepository", "getSearchSuggestions: Response unsuccessful" )
+            Log.e("RecipeRepository", "getSearchSuggestions: Response unsuccessful")
             null
         }
     }
 
     suspend fun getRecipeById(recipeId: Long): RecipeResponse? {
-       val recipe = apiService.getRecipeById(id = recipeId)
+        val recipe = apiService.getRecipeById(id = recipeId)
         val ingredients = ingredientDao.getIngredientsForRecipe(recipeId)
         val equipment = equipmentDao.getEquipmentForRecipe(recipeId)
 
@@ -123,30 +129,46 @@ class RecipeRepository(
     suspend fun removeFavoriteRecipe(recipeId: Long) {
 
     }
-}
 
-private fun RecipeEntity.toRecipeResponse(
-    ingredients: List<IngredientEntity>,
-    equipments: List<EquipmentEntity>
-): RecipeResponse {
+    private fun RecipeEntity.toRecipeResponse(
+        ingredients: List<IngredientEntity>,
+        equipments: List<EquipmentEntity>
+    ): RecipeResponse {
 
-    val ingredientList = ingredients.map { ingredientEntity ->
-        Ingredient(
-            name = ingredientEntity.name,
-            amount = ingredientEntity.amount,
-            unit = ingredientEntity.unit
+        val ingredientList = ingredients.map { ingredientEntity ->
+            Ingredient(
+                name = ingredientEntity.name,
+                amount = ingredientEntity.amount,
+                unit = ingredientEntity.unit
+            )
+        }
+
+        val equipmentList = equipments.map { equipmentEntity ->
+            Equipment(
+                name = equipmentEntity.name,
+                image = equipmentEntity.image
+            )
+        }
+
+        return RecipeResponse(
+            id,
+            title,
+            image,
+            readyInMinutes,
+            servings,
+            pricePerServing,
+            instructions = instructions,
+            extendedIngredients = ingredientList,
+            equipment = equipmentList,
+            summary = summary
         )
     }
 
-    val equipmentList = equipments.map { equipmentEntity ->
-        Equipment(
-            name = equipmentEntity.name,
-            image = equipmentEntity.image
-        )
-    }
+    private suspend fun isCacheOld(): Boolean {
+        val currentTime = System.currentTimeMillis()
+        val storedTime = saveTime.getStoredTime().firstOrNull() ?: return true
+        val thresholdTime = 15 * 60 * 1000L    // 15 minutes
 
-    return RecipeResponse(
-        id, title, image, readyInMinutes, servings, pricePerServing, instructions = instructions,
-        extendedIngredients = ingredientList, equipment = equipmentList, summary = summary
-    )
+        return currentTime.minus(storedTime) > thresholdTime
+    }
 }
