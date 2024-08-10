@@ -71,7 +71,7 @@ fun HomeScreen(
         modifier = Modifier.padding(16.dp)
     ) {
 
-        Text(text = "\uD83D\uDC4B Hey Ashu", fontWeight = FontWeight.Medium)
+        Text(text = "\uD83D\uDC4B Hey!", fontWeight = FontWeight.Medium)
         Text(text = "Discover tasty and healthy recipes", fontSize = 12.sp)
 
         Spacer(modifier = Modifier.height(8.dp))

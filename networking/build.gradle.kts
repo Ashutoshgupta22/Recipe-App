@@ -13,7 +13,7 @@ android {
     defaultConfig {
 //        applicationId = "com.aspark.networking"
         minSdk = 26
-        targetSdk = 34
+        lint.targetSdk = 34
 //        versionCode = 1
 //        versionName = "1.0"
 
