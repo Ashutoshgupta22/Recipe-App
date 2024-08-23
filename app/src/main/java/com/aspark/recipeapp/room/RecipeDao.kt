@@ -26,6 +26,9 @@ interface RecipeDao {
 
     @Query("delete from recipe where id = :recipeId")
     suspend fun deleteFavoriteRecipe(recipeId: Long)
+
+    @Query("select exists(select 1 from recipe where id = :recipeId and isFavorite = 1)")
+    suspend fun checkIfFavorite(recipeId: Long): Boolean
 }
 
 @Dao

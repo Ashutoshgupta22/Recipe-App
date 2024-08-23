@@ -62,9 +62,10 @@ import com.aspark.recipeapp.viewmodel.RecipeDetailViewModel
 fun RecipeDetailScreen(
     id: Long, detailViewModel: RecipeDetailViewModel = viewModel()
 ) {
-    LaunchedEffect(Unit) {
+    LaunchedEffect(id) {
 //        delay(7000)
         detailViewModel.getRecipeById(id)
+        detailViewModel.checkIfFavorite(id)
     }
 
     when (val recipe = detailViewModel.recipe.collectAsState().value) {
@@ -81,7 +82,7 @@ fun RecipeDetailScreen(
 
         MyResult.Loading -> {
             Log.i("RecipeDetailScreen", "RecipeDetailScreen: Loading")
-            Shimmer()
+            ShimmerScreen()
         }
     }
 }
@@ -95,13 +96,7 @@ fun Content(recipe: RecipeResponse, detailViewModel: RecipeDetailViewModel) {
             .fillMaxWidth()
             .verticalScroll(state = rememberScrollState(), enabled = true)
     ) {
-        RecipeImage(recipe = recipe, onAddFav = {
-            detailViewModel.addToFavorites(it)
-            Toast.makeText(context, "Added to favorites", Toast.LENGTH_SHORT).show()
-        }, onRemoveFav = { id ->
-            detailViewModel.deleteFavoriteRecipe(id)
-            Toast.makeText(context, "Removed from favorites", Toast.LENGTH_SHORT).show()
-        })
+        RecipeImage( recipe, detailViewModel )
 
         Column(
             modifier = Modifier.padding(16.dp),
@@ -142,7 +137,7 @@ fun Content(recipe: RecipeResponse, detailViewModel: RecipeDetailViewModel) {
 }
 
 @Composable
-fun Shimmer() {
+fun ShimmerScreen() {
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column {
@@ -194,7 +189,7 @@ fun ErrorScreen() {
             .fillMaxSize()
             .padding(16.dp), contentAlignment = Alignment.Center
     ) {
-        Text(text = "Oops! something went wrong!")
+        Text(text = "Oops! something went wrong")
     }
 }
 
@@ -312,10 +307,9 @@ fun QuickCards(recipe: RecipeResponse) {
 
 @Composable
 fun RecipeImage(
-    recipe: RecipeResponse, onAddFav: (RecipeResponse) -> Unit, onRemoveFav: (Long) -> Unit
+    recipe: RecipeResponse, viewModel: RecipeDetailViewModel
 ) {
-
-    var clicked by remember { mutableStateOf(false) }
+    val context = LocalContext.current
 
     Box(
         modifier = Modifier
@@ -335,10 +329,19 @@ fun RecipeImage(
                 .align(Alignment.BottomStart)
                 .padding(start = 16.dp, bottom = 20.dp)
         )
-        IconButton(onClick = {
-            clicked = !clicked
 
-            if (clicked) onAddFav(recipe) else onRemoveFav(recipe.id)
+        val isFavorite = viewModel.isFavorite.collectAsState().value
+
+        IconButton(
+            onClick = {
+                if (isFavorite) {
+                    viewModel.deleteFavoriteRecipe(recipe.id)
+                    Toast.makeText(context, "Removed from favorites", Toast.LENGTH_SHORT).show()
+                }
+                else {
+                    viewModel.addToFavorites(recipe)
+                    Toast.makeText(context, "Added to favorites", Toast.LENGTH_SHORT).show()
+                }
         },
             modifier = Modifier
                 .align(Alignment.TopEnd)
@@ -347,7 +350,7 @@ fun RecipeImage(
                     drawCircle(Color.White, 44f)
                 }) {
             Icon(
-                imageVector = if (clicked) Icons.Default.Favorite
+                imageVector = if (isFavorite) Icons.Default.Favorite
                 else Icons.Outlined.FavoriteBorder,
                 contentDescription = "",
                 tint = AppOrange,

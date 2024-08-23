@@ -29,20 +29,13 @@ class RecipeDetailViewModel() : ViewModel() {
 
     private val _recipeId = MutableStateFlow<Long?>(null)
 
+    private val _isFavorite = MutableStateFlow(false)
+    val isFavorite: StateFlow<Boolean> = _isFavorite
+
     val recipe: StateFlow<MyResult<RecipeResponse>> = _recipeId
         .filterNotNull()
         .flatMapLatest { id ->
-             repository.getRecipeById(id)
-
-//            flow {
-//                emit(MyResult.Loading)
-//
-//                try {
-//                    emit(MyResult.Success(recipe))
-//                } catch (e: Exception) {
-//                    emit(MyResult.Failure(e))
-//                }
-//            }
+            repository.getRecipeById(id)
         }
         .stateIn(
             scope = viewModelScope,
@@ -55,12 +48,21 @@ class RecipeDetailViewModel() : ViewModel() {
     }
 
     fun addToFavorites(recipe: RecipeResponse) = viewModelScope.launch {
+        _isFavorite.value = true
+
         val entity = recipe.toEntity()
         entity.isFavorite = true
         repository.addToFavorites(entity)
     }
 
     fun deleteFavoriteRecipe(recipeId: Long) = viewModelScope.launch {
+        _isFavorite.value = false
         repository.deleteFavoriteRecipe(recipeId)
+    }
+
+     fun checkIfFavorite(recipeId: Long) {
+        viewModelScope.launch {
+            _isFavorite.value = repository.checkIfFavorite(recipeId)
+        }
     }
 }

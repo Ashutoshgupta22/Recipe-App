@@ -14,6 +14,8 @@ import com.aspark.recipeapp.room.RecipeEntity
 import com.aspark.recipeapp.room.EquipmentDao
 import com.aspark.recipeapp.room.IngredientDao
 import com.aspark.recipeapp.room.RecipeDao
+import com.aspark.recipeapp.room.toEntity
+import com.aspark.recipeapp.room.toRecipeResponse
 import com.aspark.recipeapp.utility.SaveTime
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
@@ -68,18 +70,18 @@ class RecipeRepository(
     }
 
     private suspend fun insertRecipe(recipe: RecipeResponse) {
-        val recipeEntity = RecipeEntity(
-            id = recipe.id,
-            title = recipe.title,
-            image = recipe.image,
-            readyInMinutes = recipe.readyInMinutes,
-            servings = recipe.servings,
-            pricePerServing = recipe.pricePerServing,
-            instructions = recipe.instructions,
-            summary = recipe.summary,
-            isFavorite = false
-        )
-        recipeDao.insertRecipe(recipeEntity)
+//        val recipeEntity = RecipeEntity(
+//            id = recipe.id,
+//            title = recipe.title,
+//            image = recipe.image,
+//            readyInMinutes = recipe.readyInMinutes,
+//            servings = recipe.servings,
+//            pricePerServing = recipe.pricePerServing,
+//            instructions = recipe.instructions,
+//            summary = recipe.summary,
+//            isFavorite = false
+//        )
+        recipeDao.insertRecipe(recipe.toEntity())
 
         val ingredientEntities = recipe.extendedIngredients.map { ingredient ->
             IngredientEntity(
@@ -112,11 +114,6 @@ class RecipeRepository(
     }
 
     fun getRecipeById(recipeId: Long): Flow<MyResult<RecipeResponse>> = flow {
-//        val recipe = apiService.getRecipeById(id = recipeId)
-//        val ingredients = ingredientDao.getIngredientsForRecipe(recipeId)
-//        val equipment = equipmentDao.getEquipmentForRecipe(recipeId)
-//
-//        return if (recipe.isSuccessful) recipe.body() else null
 
         try {
             Log.i("Repo", "getRecipeById: fetching recipe by id")
@@ -131,47 +128,14 @@ class RecipeRepository(
     suspend fun getFavoriteRecipes() = recipeDao.getFavoriteRecipes()
 
     suspend fun addToFavorites(recipe: RecipeEntity) {
-        //TODO: fix this method
         recipeDao.insertRecipe(recipe)
     }
 
-    suspend fun removeFavoriteRecipe(recipeId: Long) {
-
+    suspend fun deleteFavoriteRecipe(recipeId: Long) {
+        recipeDao.deleteFavoriteRecipe(recipeId)
     }
 
-    private fun RecipeEntity.toRecipeResponse(
-        ingredients: List<IngredientEntity>,
-        equipments: List<EquipmentEntity>
-    ): RecipeResponse {
-
-        val ingredientList = ingredients.map { ingredientEntity ->
-            Ingredient(
-                name = ingredientEntity.name,
-                amount = ingredientEntity.amount,
-                unit = ingredientEntity.unit
-            )
-        }
-
-        val equipmentList = equipments.map { equipmentEntity ->
-            Equipment(
-                name = equipmentEntity.name,
-                image = equipmentEntity.image
-            )
-        }
-
-        return RecipeResponse(
-            id,
-            title,
-            image,
-            readyInMinutes,
-            servings,
-            pricePerServing,
-            instructions = instructions,
-            extendedIngredients = ingredientList,
-            equipment = equipmentList,
-            summary = summary
-        )
-    }
+    suspend fun checkIfFavorite(recipeId: Long): Boolean = recipeDao.checkIfFavorite(recipeId)
 
     private suspend fun isCacheOld(): Boolean {
         val currentTime = System.currentTimeMillis()
@@ -179,9 +143,5 @@ class RecipeRepository(
         val thresholdTime = 15 * 60 * 1000L    // 15 minutes
 
         return currentTime.minus(storedTime) > thresholdTime
-    }
-
-    suspend fun deleteFavoriteRecipe(recipeId: Long) {
-        recipeDao.deleteFavoriteRecipe(recipeId)
     }
 }

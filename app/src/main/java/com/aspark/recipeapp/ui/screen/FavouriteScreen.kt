@@ -48,7 +48,9 @@ fun FavouriteScreen(navController: NavController, viewModel: FavoriteViewModel =
         items(viewModel.favRecipes) { recipe ->
 
             OutlinedCard(
-                onClick = {  },
+                onClick = {
+                    navController.navigate("recipeDetail/${recipe.id}")
+                },
                 shape = RoundedCornerShape(12.dp),
                 modifier = Modifier
                     .fillMaxWidth()

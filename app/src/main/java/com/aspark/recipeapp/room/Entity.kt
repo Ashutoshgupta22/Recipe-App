@@ -4,6 +4,8 @@ import androidx.room.Delete
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
+import com.aspark.networking.model.Equipment
+import com.aspark.networking.model.Ingredient
 import com.aspark.networking.model.RecipeResponse
 
 @Entity(tableName = "recipe")
@@ -68,5 +70,40 @@ fun RecipeResponse.toEntity(): RecipeEntity {
         instructions = this.instructions,
         summary = this.summary,
         isFavorite = false
+    )
+}
+
+
+ fun RecipeEntity.toRecipeResponse(
+    ingredients: List<IngredientEntity>,
+    equipments: List<EquipmentEntity>
+): RecipeResponse {
+
+    val ingredientList = ingredients.map { ingredientEntity ->
+        Ingredient(
+            name = ingredientEntity.name,
+            amount = ingredientEntity.amount,
+            unit = ingredientEntity.unit
+        )
+    }
+
+    val equipmentList = equipments.map { equipmentEntity ->
+        Equipment(
+            name = equipmentEntity.name,
+            image = equipmentEntity.image
+        )
+    }
+
+    return RecipeResponse(
+        id,
+        title,
+        image,
+        readyInMinutes,
+        servings,
+        pricePerServing,
+        instructions = instructions,
+        extendedIngredients = ingredientList,
+        equipment = equipmentList,
+        summary = summary
     )
 }
