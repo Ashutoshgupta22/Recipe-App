@@ -16,7 +16,6 @@ import com.aspark.recipeapp.room.IngredientDao
 import com.aspark.recipeapp.room.RecipeDao
 import com.aspark.recipeapp.utility.SaveTime
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import okhttp3.internal.toImmutableList
@@ -62,7 +61,7 @@ class RecipeRepository(
         Log.i("RecipeRepository", "updateCache: cache is old, updating cache")
         saveTime.saveCurrentTime()
 
-        recipeDao.deleteAllRecipes()
+        recipeDao.deleteCachedRecipes()
         recipes.forEach {
             insertRecipe(it)
         }
@@ -180,5 +179,9 @@ class RecipeRepository(
         val thresholdTime = 15 * 60 * 1000L    // 15 minutes
 
         return currentTime.minus(storedTime) > thresholdTime
+    }
+
+    suspend fun deleteFavoriteRecipe(recipeId: Long) {
+        recipeDao.deleteFavoriteRecipe(recipeId)
     }
 }

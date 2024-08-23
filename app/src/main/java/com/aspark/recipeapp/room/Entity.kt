@@ -4,6 +4,7 @@ import androidx.room.Delete
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
+import com.aspark.networking.model.RecipeResponse
 
 @Entity(tableName = "recipe")
 data class RecipeEntity(
@@ -15,7 +16,7 @@ data class RecipeEntity(
     val pricePerServing: Double,
     val instructions: String,
     val summary: String,
-    val isFavorite: Boolean
+    var isFavorite: Boolean
 )
 
 @Entity(
@@ -54,3 +55,18 @@ data class EquipmentEntity(
     val name: String,
     val image: String
 )
+
+fun RecipeResponse.toEntity(): RecipeEntity {
+
+    return RecipeEntity(
+        id = this.id,
+        title = this.title,
+        image = this.image,
+        readyInMinutes = this.readyInMinutes,
+        servings = this.servings,
+        pricePerServing = this.pricePerServing,
+        instructions = this.instructions,
+        summary = this.summary,
+        isFavorite = false
+    )
+}

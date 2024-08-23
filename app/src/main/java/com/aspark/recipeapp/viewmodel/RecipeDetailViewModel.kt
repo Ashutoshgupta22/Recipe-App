@@ -1,26 +1,20 @@
 package com.aspark.recipeapp.viewmodel
 
-import android.util.Log
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.aspark.networking.ApiClient
 import com.aspark.networking.model.RecipeResponse
 import com.aspark.recipeapp.MyApplication
 import com.aspark.recipeapp.MyResult
-import com.aspark.recipeapp.room.RecipeEntity
 import com.aspark.recipeapp.repository.RecipeRepository
 import com.aspark.recipeapp.room.RecipeDatabase
+import com.aspark.recipeapp.room.toEntity
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -60,7 +54,13 @@ class RecipeDetailViewModel() : ViewModel() {
         _recipeId.value = id
     }
 
-    fun addToFavorites(recipe: RecipeEntity) = viewModelScope.launch {
-        repository.addToFavorites(recipe)
+    fun addToFavorites(recipe: RecipeResponse) = viewModelScope.launch {
+        val entity = recipe.toEntity()
+        entity.isFavorite = true
+        repository.addToFavorites(entity)
+    }
+
+    fun deleteFavoriteRecipe(recipeId: Long) = viewModelScope.launch {
+        repository.deleteFavoriteRecipe(recipeId)
     }
 }

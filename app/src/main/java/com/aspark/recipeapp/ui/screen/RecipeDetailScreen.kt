@@ -1,7 +1,7 @@
 package com.aspark.recipeapp.ui.screen
 
 import android.util.Log
-import androidx.compose.foundation.horizontalScroll
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -39,6 +39,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -56,27 +57,28 @@ import com.aspark.recipeapp.ui.component.shimmerEffect
 import com.aspark.recipeapp.ui.theme.AppOrange
 import com.aspark.recipeapp.ui.theme.RecipeAppTheme
 import com.aspark.recipeapp.viewmodel.RecipeDetailViewModel
-import kotlinx.coroutines.delay
 
 @Composable
 fun RecipeDetailScreen(
-    id: Long,
-    detailViewModel: RecipeDetailViewModel = viewModel()
+    id: Long, detailViewModel: RecipeDetailViewModel = viewModel()
 ) {
     LaunchedEffect(Unit) {
 //        delay(7000)
         detailViewModel.getRecipeById(id)
     }
 
-    when(val recipe = detailViewModel.recipe.collectAsState().value) {
+    when (val recipe = detailViewModel.recipe.collectAsState().value) {
         is MyResult.Success -> {
             Log.i("RecipeDetailScreen", "RecipeDetailScreen: Success")
 
-            Content(recipe.data)
+            Content(recipe.data, detailViewModel)
+            Log.i("RecipeDetail", "RecipeDetailScreen: ${recipe.data}")
         }
+
         is MyResult.Failure -> {
             ErrorScreen()
         }
+
         MyResult.Loading -> {
             Log.i("RecipeDetailScreen", "RecipeDetailScreen: Loading")
             Shimmer()
@@ -85,21 +87,24 @@ fun RecipeDetailScreen(
 }
 
 @Composable
-fun Content(recipe: RecipeResponse) {
+fun Content(recipe: RecipeResponse, detailViewModel: RecipeDetailViewModel) {
+    val context = LocalContext.current
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .verticalScroll(state = rememberScrollState(), enabled = true)
     ) {
-        RecipeImage(recipe) { it ->
-//            detailViewModel.addToFavorites(
-//                RecipeEntity(recipe.id, recipe.title, recipe.image, ,23,true)
-//            )
-        }
+        RecipeImage(recipe = recipe, onAddFav = {
+            detailViewModel.addToFavorites(it)
+            Toast.makeText(context, "Added to favorites", Toast.LENGTH_SHORT).show()
+        }, onRemoveFav = { id ->
+            detailViewModel.deleteFavoriteRecipe(id)
+            Toast.makeText(context, "Removed from favorites", Toast.LENGTH_SHORT).show()
+        })
 
         Column(
-            modifier = Modifier
-                .padding(16.dp),
+            modifier = Modifier.padding(16.dp),
         ) {
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -112,8 +117,7 @@ fun Content(recipe: RecipeResponse) {
             BoldTitle(title = "Instructions")
 
             Text(
-                text = recipe.instructions,
-                fontSize = 14.sp
+                text = recipe.instructions, fontSize = 14.sp
             )
             Spacer(modifier = Modifier.height(32.dp))
 
@@ -123,8 +127,7 @@ fun Content(recipe: RecipeResponse) {
             BoldTitle(title = "Quick Summary")
 
             Text(
-                text = recipe.summary,
-                fontSize = 14.sp
+                text = recipe.summary, fontSize = 14.sp
             )
         }
 
@@ -144,8 +147,7 @@ fun Shimmer() {
     Box(modifier = Modifier.fillMaxSize()) {
         Column {
             MyAsyncImage(
-                url = "",
-                modifier = Modifier
+                url = "", modifier = Modifier
                     .fillMaxWidth()
                     .height(300.dp)
                     .shimmerEffect()
@@ -153,8 +155,7 @@ fun Shimmer() {
 
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier
-                    .padding( horizontal = 16.dp, vertical = 32.dp)
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 32.dp)
             ) {
                 repeat(3) {
                     OutlinedCard(
@@ -191,8 +192,7 @@ fun ErrorScreen() {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
-        contentAlignment = Alignment.Center
+            .padding(16.dp), contentAlignment = Alignment.Center
     ) {
         Text(text = "Oops! something went wrong!")
     }
@@ -207,8 +207,7 @@ fun Equipments(equipmentList: List<Equipment>) {
         items(equipmentList) { equipment ->
 
             Column(
-                modifier = Modifier,
-                horizontalAlignment = Alignment.CenterHorizontally
+                modifier = Modifier, horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 MyAsyncImage(
                     url = equipment.image, modifier = Modifier
@@ -235,12 +234,10 @@ fun Ingredients(ingredientList: List<Ingredient>) {
         items(ingredientList) { ingredient ->
 
             Column(
-                modifier = Modifier,
-                horizontalAlignment = Alignment.CenterHorizontally
+                modifier = Modifier, horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 MyAsyncImage(
-                    url = ingredient.image,
-                    modifier = Modifier
+                    url = ingredient.image, modifier = Modifier
                         .size(86.dp)
                         .clip(CircleShape)
                 )
@@ -255,14 +252,10 @@ fun Ingredients(ingredientList: List<Ingredient>) {
 fun QuickCards(recipe: RecipeResponse) {
 
     Row(
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        modifier = Modifier
-            .fillMaxWidth()
+        horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()
     ) {
         OutlinedCard(
-            shape = RoundedCornerShape(12.dp),
-            modifier = Modifier
-                .weight(1f)
+            shape = RoundedCornerShape(12.dp), modifier = Modifier.weight(1f)
         ) {
             Column(
                 modifier = Modifier
@@ -279,9 +272,7 @@ fun QuickCards(recipe: RecipeResponse) {
         }
 
         OutlinedCard(
-            shape = RoundedCornerShape(12.dp),
-            modifier = Modifier
-                .weight(1f)
+            shape = RoundedCornerShape(12.dp), modifier = Modifier.weight(1f)
         ) {
             Column(
                 modifier = Modifier
@@ -297,9 +288,7 @@ fun QuickCards(recipe: RecipeResponse) {
         }
 
         OutlinedCard(
-            shape = RoundedCornerShape(12.dp),
-            modifier = Modifier
-                .weight(1f)
+            shape = RoundedCornerShape(12.dp), modifier = Modifier.weight(1f)
         ) {
             Column(
                 modifier = Modifier
@@ -322,16 +311,17 @@ fun QuickCards(recipe: RecipeResponse) {
 }
 
 @Composable
-fun RecipeImage(recipe: RecipeResponse, onFavIconClick: (RecipeResponse)-> Unit) {
+fun RecipeImage(
+    recipe: RecipeResponse, onAddFav: (RecipeResponse) -> Unit, onRemoveFav: (Long) -> Unit
+) {
 
-    var clicked by remember{ mutableStateOf(false) }
+    var clicked by remember { mutableStateOf(false) }
 
     Box(
         modifier = Modifier
     ) {
         MyAsyncImage(
-            url = recipe.image,
-            modifier = Modifier
+            url = recipe.image, modifier = Modifier
                 .fillMaxWidth()
                 .height(300.dp)
         )
@@ -345,20 +335,19 @@ fun RecipeImage(recipe: RecipeResponse, onFavIconClick: (RecipeResponse)-> Unit)
                 .align(Alignment.BottomStart)
                 .padding(start = 16.dp, bottom = 20.dp)
         )
-        IconButton(
-            onClick = {
-                onFavIconClick(recipe)
-                clicked = !clicked
-                      },
+        IconButton(onClick = {
+            clicked = !clicked
+
+            if (clicked) onAddFav(recipe) else onRemoveFav(recipe.id)
+        },
             modifier = Modifier
                 .align(Alignment.TopEnd)
                 .padding(end = 16.dp, top = 16.dp)
                 .drawBehind {
                     drawCircle(Color.White, 44f)
-                }
-        ) {
+                }) {
             Icon(
-                imageVector = if(clicked) Icons.Default.Favorite
+                imageVector = if (clicked) Icons.Default.Favorite
                 else Icons.Outlined.FavoriteBorder,
                 contentDescription = "",
                 tint = AppOrange,
@@ -373,8 +362,7 @@ fun RecipeDetailScreenPreview() {
 
     RecipeAppTheme {
         Surface(
-            modifier = Modifier.fillMaxSize(),
-            color = MaterialTheme.colorScheme.background
+            modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background
         ) {
             RecipeDetailScreen(id = 0)
         }
