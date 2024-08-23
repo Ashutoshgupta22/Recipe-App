@@ -1,6 +1,7 @@
 package com.aspark.recipeapp.ui
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
@@ -27,11 +28,19 @@ class MainActivity : ComponentActivity() {
                 ) {
                     val navController = rememberNavController()
                     var showBottomNavBar by remember {mutableStateOf(true)}
+                    var selected by remember { mutableStateOf<Screen>(Screen.Home) }
+
+                    Log.i("MainActivity", "onCreate: called ")
 
                         Scaffold(
                             bottomBar = {
                                 if (showBottomNavBar)
-                                    BottomNavigationBar(navController = navController)
+                                    BottomNavigationBar(
+                                        navController = navController,
+                                        selected = selected
+                                    ) { selectedScreen ->
+                                        selected = selectedScreen
+                                    }
                             }
                         ) {
                             NavGraph(navController, it) { route ->

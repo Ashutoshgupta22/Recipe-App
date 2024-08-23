@@ -9,7 +9,6 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
-import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
@@ -25,8 +24,6 @@ import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.rounded.Clear
-import androidx.compose.material.icons.rounded.KeyboardArrowLeft
-import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -38,11 +35,9 @@ import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.currentCompositionLocalContext
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -56,38 +51,31 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import coil.ImageLoader
 import coil.compose.AsyncImage
-import coil.compose.rememberAsyncImagePainter
 import coil.imageLoader
 import coil.request.ImageRequest
-import coil.size.Size
-import com.aspark.recipeapp.MyApplication
-import com.aspark.recipeapp.R
 import com.aspark.recipeapp.ui.Screen
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 @Composable
-fun BottomNavigationBar(navController: NavController) {
+fun BottomNavigationBar(
+    navController: NavController,
+    selected: Screen,
+    onItemSelected: (Screen) -> Unit ) {
+
+    Log.i("Component", "BottomNavigationBar: called")
 
     NavigationBar {
-
-        var selected by remember { mutableStateOf<Screen>(Screen.Home) }
-
         NavigationBarItem(
             selected = selected == Screen.Home,
             onClick = {
                 navController.navigate(Screen.Home.route)
-                selected = Screen.Home
+                onItemSelected(Screen.Home)
             },
             label = { Text(text = "Home") },
             icon = {
@@ -104,7 +92,7 @@ fun BottomNavigationBar(navController: NavController) {
             selected = selected == Screen.Favorites,
             onClick = {
                 navController.navigate(Screen.Favorites.route)
-                selected = Screen.Favorites
+                onItemSelected(Screen.Favorites)
             },
             label = { Text(text = "Favourite") },
             icon = {
