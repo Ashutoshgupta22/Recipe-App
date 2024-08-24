@@ -18,14 +18,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -33,7 +31,6 @@ import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -50,9 +47,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.aspark.networking.model.RecipeResponse
-import com.aspark.recipeapp.MyResult
+import com.aspark.recipeapp.UiState
 import com.aspark.recipeapp.ui.Screen
 import com.aspark.recipeapp.ui.component.MyAsyncImage
+import com.aspark.recipeapp.ui.component.shimmerEffect
 import com.aspark.recipeapp.ui.theme.RecipeAppTheme
 import com.aspark.recipeapp.viewmodel.HomeViewModel
 
@@ -62,13 +60,8 @@ fun HomeScreen(
     navController: NavController,
     homeViewModel: HomeViewModel = viewModel()
 ) {
-
-//    LaunchedEffect(Unit) {
-//        homeViewModel.getRandomRecipes()
-//    }
-
     Column(
-        modifier = Modifier.padding(16.dp)
+        modifier = Modifier.padding( 16.dp)
     ) {
 
         Text(text = "\uD83D\uDC4B Hey!", fontWeight = FontWeight.Medium)
@@ -81,54 +74,35 @@ fun HomeScreen(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        val randomRecipes by homeViewModel.randomRecipes.collectAsState()
+        val recipeList by homeViewModel.randomRecipes.collectAsState()
 
-        LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-            contentPadding = PaddingValues(bottom = 70.dp)
-        ) {
-
-            item {
-                PopularRecipes(randomRecipes) { recipeId ->
-                    navController.navigate(Screen.RecipeDetail.createRoute(recipeId))
-                }
-
-                Spacer(modifier = Modifier.height(32.dp))
-
-                Text(
-                    text = "All recipes", fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp
+        when (recipeList) {
+            is UiState.Success -> {
+                HomeScreenContent(
+                    recipeList = (recipeList as UiState.Success<List<RecipeResponse>>).data,
+                    onClick = { recipeId ->
+                        navController.navigate(Screen.RecipeDetail.createRoute(recipeId))
+                    }
                 )
             }
 
-            when (randomRecipes) {
-                is MyResult.Success -> {
-                    val data = (randomRecipes as MyResult.Success<List<RecipeResponse>>).data
+            is UiState.Failure -> {
+                Log.e(
+                    "HomeScreen", "HomeScreen: RandomRecipes Failed",
+                    (recipeList as UiState.Failure).exception
+                )
+            }
 
-                    itemsIndexed(data.drop(10)) { index, recipe ->
-                        AllRecipesItem(recipe) { id ->
-                            navController.navigate(Screen.RecipeDetail.createRoute(id))
-                        }
-                    }
-                }
-                is MyResult.Failure -> {
-                    Log.e(
-                        "HomeScreen", "HomeScreen: RandomRecipes Failed",
-                        (randomRecipes as MyResult.Failure).exception
-                    )
-                }
-                is MyResult.Loading -> {
-                    item {
-                        LoadingIndicator()
-                    }
-                }
+            is UiState.Loading -> {
+                LoadingScreen()
             }
         }
     }
 }
 
+
 @Composable
-fun SearchBarDuplicate(onClick: ()-> Unit) {
+fun SearchBarDuplicate(onClick: () -> Unit) {
     Card(
         onClick = onClick,
         modifier = Modifier
@@ -196,7 +170,7 @@ fun AllRecipesItem(recipe: RecipeResponse, cardClicked: (Long) -> Unit) {
 }
 
 @Composable
-fun PopularRecipes(popularRecipes: MyResult<List<RecipeResponse>>, onClick: (Long) -> Unit) {
+fun PopularRecipes(popularRecipes: List<RecipeResponse>, onClick: (Long) -> Unit) {
 
     Column(
         modifier = Modifier
@@ -207,96 +181,169 @@ fun PopularRecipes(popularRecipes: MyResult<List<RecipeResponse>>, onClick: (Lon
             fontSize = 16.sp
         )
 
-        when (popularRecipes) {
-            is MyResult.Success -> {
-
-                LazyRow(
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    itemsIndexed(popularRecipes.data.take(10)) { index, recipe ->
-                        PopularRecipeItem(recipe) { recipeId -> onClick(recipeId) }
-                    }
-                }
-            }
-            is MyResult.Failure -> {
-                Log.e("HomeViewModel", "PopularRecipes: failed", popularRecipes.exception)
-            }
-            is MyResult.Loading -> {
-                LoadingIndicator()
+        LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            itemsIndexed(popularRecipes) { index, recipe ->
+                PopularRecipeItem(recipe) { recipeId -> onClick(recipeId) }
             }
         }
     }
 }
 
 @Composable
-fun PopularRecipeItem(recipe: RecipeResponse, onClick: (Long) -> Unit) {
-    Box(
-        modifier = Modifier
-            .size(156.dp)
-            .padding(top = 16.dp)
-            .clip(RoundedCornerShape(16.dp))
-            .clickable { onClick(recipe.id) },
+fun HomeScreenContent(
+    recipeList: List<RecipeResponse>,
+    onClick: (Long) -> Unit
+    ) {
 
-        ) {
+    LazyColumn(
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+        contentPadding = PaddingValues(bottom = 70.dp)
+    ) {
 
-        MyAsyncImage(
-            url = recipe.image,
-            modifier = Modifier.fillMaxSize()
-        )
+        item {
+            PopularRecipes(recipeList.take(10)) { recipeId -> onClick(recipeId) }
 
-        //to add black gradient tint
-        Box(modifier = Modifier
-            .fillMaxSize()
-            .background(
-                Brush.verticalGradient(
-                    colors = listOf(
-                        Color.Transparent,
-                        Color.Black.copy(alpha = 0.7f)
-                    ),
-                    startY = 0f,
-                    endY = Float.POSITIVE_INFINITY
-                )
+            Spacer(modifier = Modifier.height(32.dp))
+
+            Text(
+                text = "All recipes", fontWeight = FontWeight.Bold,
+                fontSize = 16.sp
             )
-        )
+        }
+
+        itemsIndexed(recipeList.drop(10)) { index, recipe ->
+            AllRecipesItem(recipe) { id -> onClick(id)}
+        }
+    }
+}
+
+    @Composable
+    fun PopularRecipeItem(recipe: RecipeResponse, onClick: (Long) -> Unit) {
+        Box(
+            modifier = Modifier
+                .size(156.dp)
+                .padding(top = 16.dp)
+                .clip(RoundedCornerShape(16.dp))
+                .clickable { onClick(recipe.id) },
+
+            ) {
+
+            MyAsyncImage(
+                url = recipe.image,
+                modifier = Modifier.fillMaxSize()
+            )
+
+            //to add black gradient tint
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        Brush.verticalGradient(
+                            colors = listOf(
+                                Color.Transparent,
+                                Color.Black.copy(alpha = 0.7f)
+                            ),
+                            startY = 0f,
+                            endY = Float.POSITIVE_INFINITY
+                        )
+                    )
+            )
+
+            Column(
+                modifier = Modifier
+                    .align(Alignment.BottomStart)
+                    .padding(start = 8.dp)
+            ) {
+
+                Text(
+                    text = recipe.title, fontSize = 14.sp,
+                    color = Color.White, fontWeight = FontWeight.Medium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+
+                Text(
+                    text = "Ready in ${recipe.readyInMinutes} min", fontSize = 12.sp,
+                    color = Color.LightGray, fontWeight = FontWeight.Medium,
+                    maxLines = 1,
+                )
+            }
+        }
+    }
+
+    @Composable
+    fun LoadingScreen() {
 
         Column(
             modifier = Modifier
-                .align(Alignment.BottomStart)
-                .padding(start = 8.dp)
+//                .padding(16.dp)
         ) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                repeat(3) {
+                    Box(
+                        modifier = Modifier
+                            .size(156.dp)
+                            .padding(top = 16.dp)
+                            .clip(RoundedCornerShape(16.dp))
+                            .shimmerEffect()
+                    ) {}
+                }
+            }
 
-            Text(
-                text = recipe.title, fontSize = 14.sp,
-                color = Color.White, fontWeight = FontWeight.Medium,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
+            Spacer(modifier = Modifier.height(32.dp))
+                repeat(5) {
+                    Row(
+                        modifier = Modifier
+                            .padding(8.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(100.dp)
+                                .clip(RoundedCornerShape(16.dp))
+                                .shimmerEffect()
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Column(
+                            modifier = Modifier
+                                .height(100.dp),
+                            verticalArrangement = Arrangement.Center
+                        ) {
 
-            Text(
-                text = "Ready in ${recipe.readyInMinutes} min", fontSize = 12.sp,
-                color = Color.LightGray, fontWeight = FontWeight.Medium,
-                maxLines = 1,
-            )
+                            Box(modifier = Modifier
+                                .height(14.dp)
+                                .width(100.dp)
+                                .clip(RoundedCornerShape(16.dp))
+                                .shimmerEffect()
+                            )
+                            Box(modifier = Modifier
+                                .padding(top = 8.dp)
+                                .height(14.dp)
+                                .width(60.dp)
+                                .clip(RoundedCornerShape(16.dp))
+                                .shimmerEffect()
+                            )
+                        }
+                    }
+                }
+            }
+    }
+
+    @Preview(apiLevel = 33)
+    @Composable
+    private fun HomeScreenPreview() {
+        RecipeAppTheme {
+            // A surface container using the 'background' color from the theme
+            Surface(
+                modifier = Modifier.fillMaxSize(),
+                color = MaterialTheme.colorScheme.background
+            ) {
+//                HomeScreen(rememberNavController())
+                LoadingScreen()
+            }
         }
     }
-}
-
-@Composable
-fun LoadingIndicator() {
-//    CircularProgressIndicator()
-}
-
-@Preview(apiLevel = 33)
-@Composable
-private fun HomeScreenPreview() {
-    RecipeAppTheme {
-        // A surface container using the 'background' color from the theme
-        Surface(
-            modifier = Modifier.fillMaxSize(),
-            color = MaterialTheme.colorScheme.background
-        ) {
-            HomeScreen(rememberNavController())
-        }
-    }
-}
 

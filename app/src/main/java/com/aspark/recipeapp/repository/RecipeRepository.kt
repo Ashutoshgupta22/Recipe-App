@@ -2,12 +2,10 @@ package com.aspark.recipeapp.repository
 
 import android.util.Log
 import com.aspark.networking.ApiService
-import com.aspark.networking.model.Equipment
-import com.aspark.networking.model.Ingredient
 import com.aspark.networking.model.RecipeResponse
 import com.aspark.networking.model.SearchSuggestionResponse
 import com.aspark.recipeapp.MyApplication
-import com.aspark.recipeapp.MyResult
+import com.aspark.recipeapp.UiState
 import com.aspark.recipeapp.room.EquipmentEntity
 import com.aspark.recipeapp.room.IngredientEntity
 import com.aspark.recipeapp.room.RecipeEntity
@@ -31,10 +29,10 @@ class RecipeRepository(
     private val saveTime by lazy {  SaveTime(MyApplication.applicationContext()) }
 
     // Function to get recipes, first from cache then from network
-    fun getRandomRecipes(): Flow<MyResult<List<RecipeResponse>>> = flow {
+    fun getRandomRecipes(): Flow<UiState<List<RecipeResponse>>> = flow {
 
         // Emit cached data first
-        emit(MyResult.Success(getCachedRandomRecipes()))
+        emit(UiState.Success(getCachedRandomRecipes()))
 
         if (isCacheOld()) { //fetch from remote if cache is old
             try {
@@ -42,10 +40,10 @@ class RecipeRepository(
                 val remoteRecipes = remoteResponse.body()?.recipes?.toImmutableList()!!
 
                 updateCache(remoteRecipes)
-                emit(MyResult.Success(remoteRecipes))
+                emit(UiState.Success(remoteRecipes))
             } catch (e: Exception) {
                 if (getCachedRandomRecipes().isEmpty())
-                    emit(MyResult.Failure(e))
+                    emit(UiState.Failure(e))
             }
         }
     }
@@ -113,15 +111,15 @@ class RecipeRepository(
         }
     }
 
-    fun getRecipeById(recipeId: Long): Flow<MyResult<RecipeResponse>> = flow {
+    fun getRecipeById(recipeId: Long): Flow<UiState<RecipeResponse>> = flow {
 
         try {
             Log.i("Repo", "getRecipeById: fetching recipe by id")
             val recipe = apiService.getRecipeById(id = recipeId).body()!!
 
-            emit(MyResult.Success(recipe))
+            emit(UiState.Success(recipe))
         } catch (e: Exception) {
-            emit(MyResult.Failure(e))
+            emit(UiState.Failure(e))
         }
     }
 

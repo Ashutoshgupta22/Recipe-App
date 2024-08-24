@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.aspark.networking.ApiClient
 import com.aspark.networking.model.RecipeResponse
 import com.aspark.recipeapp.MyApplication
-import com.aspark.recipeapp.MyResult
+import com.aspark.recipeapp.UiState
 import com.aspark.recipeapp.repository.RecipeRepository
 import com.aspark.recipeapp.room.RecipeDatabase
 import com.aspark.recipeapp.room.toEntity
@@ -32,7 +32,7 @@ class RecipeDetailViewModel() : ViewModel() {
     private val _isFavorite = MutableStateFlow(false)
     val isFavorite: StateFlow<Boolean> = _isFavorite
 
-    val recipe: StateFlow<MyResult<RecipeResponse>> = _recipeId
+    val recipe: StateFlow<UiState<RecipeResponse>> = _recipeId
         .filterNotNull()
         .flatMapLatest { id ->
             repository.getRecipeById(id)
@@ -40,7 +40,7 @@ class RecipeDetailViewModel() : ViewModel() {
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.Lazily,
-            initialValue = MyResult.Loading
+            initialValue = UiState.Loading
         )
 
     fun getRecipeById(id: Long) {

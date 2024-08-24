@@ -13,10 +13,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -33,10 +31,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -55,11 +49,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.aspark.networking.model.Equipment
 import com.aspark.networking.model.Ingredient
 import com.aspark.networking.model.RecipeResponse
-import com.aspark.recipeapp.MyResult
+import com.aspark.recipeapp.UiState
 import com.aspark.recipeapp.ui.component.AnnotatedText
 import com.aspark.recipeapp.ui.component.BoldTitle
 import com.aspark.recipeapp.ui.component.BulletText
-import com.aspark.recipeapp.ui.component.ExpandableCard
 import com.aspark.recipeapp.ui.component.MyAsyncImage
 import com.aspark.recipeapp.ui.component.shimmerEffect
 import com.aspark.recipeapp.ui.theme.AppOrange
@@ -79,18 +72,18 @@ fun RecipeDetailScreen(
     }
 
     when (val recipe = detailViewModel.recipe.collectAsState().value) {
-        is MyResult.Success -> {
+        is UiState.Success -> {
             Log.i("RecipeDetailScreen", "RecipeDetailScreen: Success")
 
             Content(recipe.data, detailViewModel)
             Log.i("RecipeDetail", "RecipeDetailScreen: ${recipe.data.summary}")
         }
 
-        is MyResult.Failure -> {
+        is UiState.Failure -> {
             ErrorScreen()
         }
 
-        MyResult.Loading -> {
+        UiState.Loading -> {
             Log.i("RecipeDetailScreen", "RecipeDetailScreen: Loading")
             ShimmerScreen()
         }
