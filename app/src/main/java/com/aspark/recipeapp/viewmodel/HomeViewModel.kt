@@ -55,6 +55,7 @@ class HomeViewModel() : ViewModel() {
                     is UiState.Loading -> {
                         Log.d("HomeViewModel", "getRandomRecipes: Loading")
                     }
+                    else -> {}
                 }
             }
         }

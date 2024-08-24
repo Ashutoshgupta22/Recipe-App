@@ -7,11 +7,14 @@ import androidx.lifecycle.viewModelScope
 import com.aspark.networking.ApiClient
 import com.aspark.networking.model.SearchSuggestionResponse
 import com.aspark.recipeapp.MyApplication
+import com.aspark.recipeapp.UiState
 import com.aspark.recipeapp.repository.RecipeRepository
 import com.aspark.recipeapp.room.RecipeDatabase
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class SearchViewModel : ViewModel() {
@@ -21,28 +24,28 @@ class SearchViewModel : ViewModel() {
         database.equipmentDao()
     )
 
-    var suggestions = mutableStateListOf<SearchSuggestionResponse>()
-        private set
+    private var _suggestions = MutableStateFlow<UiState<List<SearchSuggestionResponse>>>(
+        UiState.Idle
+    )
+    val suggestions: StateFlow<UiState<List<SearchSuggestionResponse>>> = _suggestions
 
     private var searchJob: Job? = null
 
     fun getSearchSuggestions(query: String) {
 
+        _suggestions.value = UiState.Loading
+
         searchJob?.cancel(message = "Job cancelled")
         searchJob = viewModelScope.launch {
 
             delay(700)
-            val response = repository.getSearchSuggestions(query)
-            suggestions.clear()
-
-            response?.let {
-                suggestions.addAll(it)
-            } ?: Log.e("SearchViewModel", "getSearchSuggestions: Empty Body")
+             repository.getSearchSuggestions(query).collect{
+                _suggestions.value = it
+            }
         }
     }
 
-    fun searchRecipe(query: String) {
-
-
+    fun clearSuggestions() {
+        _suggestions.value = UiState.Idle
     }
 }

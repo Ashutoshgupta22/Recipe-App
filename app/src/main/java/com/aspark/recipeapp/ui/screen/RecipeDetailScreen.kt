@@ -87,6 +87,8 @@ fun RecipeDetailScreen(
             Log.i("RecipeDetailScreen", "RecipeDetailScreen: Loading")
             ShimmerScreen()
         }
+
+        UiState.Idle -> {}
     }
 }
 
@@ -269,14 +271,14 @@ fun ShimmerScreen() {
 }
 
 @Composable
-fun ErrorScreen() {
+fun ErrorScreen(message: String = "Oops! something went wrong") {
 
     Box(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp), contentAlignment = Alignment.Center
     ) {
-        Text(text = "Oops! something went wrong")
+        Text(text = message)
     }
 }
 

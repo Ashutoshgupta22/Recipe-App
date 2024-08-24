@@ -101,14 +101,26 @@ class RecipeRepository(
         equipmentDao.insertEquipment(equipmentEntities)
     }
 
-    suspend fun getSearchSuggestions(query: String): List<SearchSuggestionResponse>? {
-        val response = apiService.getSearchSuggestions(query = query, 25)
+     fun getSearchSuggestions(query: String): Flow<UiState<List<SearchSuggestionResponse>>> = flow{
 
-        return if (response.isSuccessful) response.body()
-        else {
-            Log.e("RecipeRepository", "getSearchSuggestions: Response unsuccessful")
-            null
-        }
+         try {
+             val response = apiService.getSearchSuggestions(query = query, 25)
+
+             if (response.isSuccessful && response.body() != null) {
+                 if (response.body()!!.isEmpty())
+                     emit(UiState.Failure(Exception("No match found")))
+                 else
+                     emit(UiState.Success(response.body()!!))
+             }
+             else {
+                 Log.e("RecipeRepository", "getSearchSuggestions: Response unsuccessful")
+                 emit(UiState.Failure(Exception("Response unsuccessful")))
+             }
+         }
+         catch (e: Exception) {
+             Log.e("RecipeRepository", "getSearchSuggestions: Exception", e)
+             emit(UiState.Failure(e))
+         }
     }
 
     fun getRecipeById(recipeId: Long): Flow<UiState<RecipeResponse>> = flow {

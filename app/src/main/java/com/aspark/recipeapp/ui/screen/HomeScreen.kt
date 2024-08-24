@@ -96,6 +96,9 @@ fun HomeScreen(
             is UiState.Loading -> {
                 LoadingScreen()
             }
+            else -> {
+                Log.i("HomeScreen", "HomeScreen: Idle")
+            }
         }
     }
 }
