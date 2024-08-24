@@ -51,10 +51,14 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.imageLoader
@@ -66,7 +70,8 @@ import kotlinx.coroutines.delay
 fun BottomNavigationBar(
     navController: NavController,
     selected: Screen,
-    onItemSelected: (Screen) -> Unit ) {
+    onItemSelected: (Screen) -> Unit
+) {
 
     Log.i("Component", "BottomNavigationBar: called")
 
@@ -109,12 +114,12 @@ fun BottomNavigationBar(
 
 @Composable
 fun MyAsyncImage(
-    url: String,
+    url: String?,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
     val imageRequest = ImageRequest.Builder(context)
-        .data(url)
+        .data(url ?: "")
         .crossfade(true)
 //        .size(100, 100)
         .build()
@@ -219,17 +224,18 @@ fun MySearchBar(
             Text(text = "Search any recipe")
         },
         leadingIcon = {
-                IconButton(onClick = { onBack() },
-                    modifier = Modifier
+            IconButton(
+                onClick = { onBack() },
+                modifier = Modifier
 
-                    ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowLeft,
-                        contentDescription = "",
-                        modifier = Modifier
-                            .fillMaxSize()
-                    )
-                }
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowLeft,
+                    contentDescription = "",
+                    modifier = Modifier
+                        .fillMaxSize()
+                )
+            }
         },
         trailingIcon = {
             if (query.isNotEmpty())
@@ -282,6 +288,35 @@ fun Modifier.shimmerEffect(): Modifier = composed {
         )
     ).onGloballyPositioned {
         size = it.size
+    }
+}
+
+@Composable
+fun AnnotatedText(boldText: String, normalText: String) {
+    Text(
+        text = buildAnnotatedString {
+            withStyle(
+                style = SpanStyle(fontWeight = FontWeight.Bold)
+            ) {
+                append("$boldText ")
+            }
+            append(normalText)
+        }
+    )
+}
+
+@Composable
+fun BulletText(text: String) {
+    Row(
+        modifier = Modifier.padding(vertical = 4.dp)
+    ) {
+        Text(
+            text = "•",
+            fontWeight = FontWeight.Bold,
+            fontSize = 16.sp,
+            modifier = Modifier.padding(end = 8.dp)
+        )
+        Text(text = text)
     }
 }
 

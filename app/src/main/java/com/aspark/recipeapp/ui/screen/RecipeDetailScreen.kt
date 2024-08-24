@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -55,13 +56,16 @@ import com.aspark.networking.model.Equipment
 import com.aspark.networking.model.Ingredient
 import com.aspark.networking.model.RecipeResponse
 import com.aspark.recipeapp.MyResult
+import com.aspark.recipeapp.ui.component.AnnotatedText
 import com.aspark.recipeapp.ui.component.BoldTitle
+import com.aspark.recipeapp.ui.component.BulletText
 import com.aspark.recipeapp.ui.component.ExpandableCard
 import com.aspark.recipeapp.ui.component.MyAsyncImage
 import com.aspark.recipeapp.ui.component.shimmerEffect
 import com.aspark.recipeapp.ui.theme.AppOrange
 import com.aspark.recipeapp.ui.theme.RecipeAppTheme
 import com.aspark.recipeapp.utility.parseHtml
+import com.aspark.recipeapp.utility.parseSummary
 import com.aspark.recipeapp.viewmodel.RecipeDetailViewModel
 
 @Composable
@@ -102,7 +106,7 @@ fun Content(recipe: RecipeResponse, detailViewModel: RecipeDetailViewModel) {
             .fillMaxWidth()
             .verticalScroll(state = rememberScrollState(), enabled = true)
     ) {
-        RecipeImage( recipe, detailViewModel )
+        RecipeImage(recipe, detailViewModel)
 
         Column(
             modifier = Modifier.padding(16.dp),
@@ -112,7 +116,10 @@ fun Content(recipe: RecipeResponse, detailViewModel: RecipeDetailViewModel) {
             QuickCards(recipe)
             Spacer(modifier = Modifier.height(32.dp))
 
-            Ingredients(recipe.extendedIngredients)
+//            Ingredients(recipe.extendedIngredients)
+            BoldTitle(title = "Ingredients")
+
+            IngredientsList(recipe.extendedIngredients)
             Spacer(modifier = Modifier.height(32.dp))
 
             BoldTitle(title = "Instructions")
@@ -128,23 +135,72 @@ fun Content(recipe: RecipeResponse, detailViewModel: RecipeDetailViewModel) {
             QuickSummary(recipe.summary)
         }
 
-        ExpandableCard(title = "Nutrition", description = "Some Information")
-        Spacer(modifier = Modifier.height(4.dp))
-        ExpandableCard(title = "Bad for health nutrition", description = "Some Information")
-        Spacer(modifier = Modifier.height(4.dp))
+//        ExpandableCard(title = "Nutrition", description = "Some Information")
+//        Spacer(modifier = Modifier.height(4.dp))
+//        ExpandableCard(title = "Bad for health nutrition", description = "Some Information")
+//        Spacer(modifier = Modifier.height(4.dp))
+//
+//        ExpandableCard(title = "Good for health nutrition", description = "Some Information")
+//        Spacer(modifier = Modifier.height(16.dp))
+    }
+}
 
-        ExpandableCard(title = "Good for health nutrition", description = "Some Information")
-        Spacer(modifier = Modifier.height(16.dp))
+@Composable
+fun IngredientsList(extendedIngredients: List<Ingredient>) {
+
+    val midPoint = (extendedIngredients.size + 1 )/ 2
+
+    Row(
+        modifier = Modifier
+            .padding(top = 8.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .weight(1f)
+        ) {
+            extendedIngredients.take(midPoint).forEach { ingredient ->
+                BulletText(text = ingredient.name)
+            }
+        }
+
+        Spacer(modifier = Modifier.width(8.dp))
+
+        Column(
+            modifier = Modifier
+                .weight(1f)
+        ) {
+            extendedIngredients.drop(midPoint).forEach { ingredient ->
+                BulletText(text = ingredient.name)
+            }
+        }
     }
 }
 
 @Composable
 fun QuickSummary(unParsedSummary: String) {
+    val parsedInfo = parseSummary(unParsedSummary)
 
-
-    Text(
-        text = unParsedSummary, fontSize = 14.sp
-    )
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 8.dp, bottom = 16.dp)
+    ) {
+        parsedInfo["protein"]?.let {
+           AnnotatedText(boldText = "Protein:", normalText = it)
+        }
+        parsedInfo["fat"]?.let {
+            AnnotatedText(boldText = "Fat:", normalText = it)
+        }
+        parsedInfo["calories"]?.let {
+            AnnotatedText(boldText = "Calories:", normalText = it)
+        }
+        parsedInfo["nutritionCoverage"]?.let {
+            AnnotatedText(boldText = "Nutrition Coverage:", normalText = it)
+        }
+        parsedInfo["score"]?.let {
+            AnnotatedText(boldText = "Score:", normalText = it)
+        }
+    }
 }
 
 @Composable
@@ -167,7 +223,7 @@ fun Instructions(unParsedInstructions: String) {
                     }
                     append(instruction)
                 },
-                fontSize = 14.sp,
+                fontSize = 16.sp,
                 color = Color.Black
             )
         }
@@ -375,12 +431,11 @@ fun RecipeImage(
                 if (isFavorite) {
                     viewModel.deleteFavoriteRecipe(recipe.id)
                     Toast.makeText(context, "Removed from favorites", Toast.LENGTH_SHORT).show()
-                }
-                else {
+                } else {
                     viewModel.addToFavorites(recipe)
                     Toast.makeText(context, "Added to favorites", Toast.LENGTH_SHORT).show()
                 }
-        },
+            },
             modifier = Modifier
                 .align(Alignment.TopEnd)
                 .padding(end = 16.dp, top = 16.dp)
