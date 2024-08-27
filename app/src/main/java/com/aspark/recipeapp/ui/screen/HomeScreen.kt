@@ -157,9 +157,9 @@ fun AllRecipesItem(recipe: RecipeResponse, cardClicked: (Long) -> Unit) {
             ) {
                 Text(
                     text = recipe.title, fontSize = 14.sp,
-                    color = Color.Black, fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Medium,
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis,
                 )
 
                 Text(

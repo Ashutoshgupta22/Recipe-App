@@ -105,7 +105,7 @@ fun SuggestionListContent(suggestions: List<SearchSuggestionResponse>, onClick: 
             ) {
                 Text(
                     text = item.title,
-                    color = Color.Black,
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontSize = 18.sp,
                     modifier = Modifier
                         .padding(vertical = 8.dp, horizontal = 8.dp)

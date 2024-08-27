@@ -219,7 +219,7 @@ fun Instructions(unParsedInstructions: String) {
                     append(instruction)
                 },
                 fontSize = 16.sp,
-                color = Color.Black
+                color = MaterialTheme.colorScheme.onSurface
             )
         }
     }
@@ -420,6 +420,7 @@ fun RecipeImage(
         )
 
         val isFavorite = viewModel.isFavorite.collectAsState().value
+        val color = MaterialTheme.colorScheme.background
 
         IconButton(
             onClick = {
@@ -435,7 +436,7 @@ fun RecipeImage(
                 .align(Alignment.TopEnd)
                 .padding(end = 16.dp, top = 16.dp)
                 .drawBehind {
-                    drawCircle(Color.White, 44f)
+                    drawCircle(color, 44f)
                 }) {
             Icon(
                 imageVector = if (isFavorite) Icons.Default.Favorite

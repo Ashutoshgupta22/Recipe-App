@@ -138,7 +138,7 @@ fun MyAsyncImage(
 fun BoldTitle(title: String) {
     Text(
         text = title, fontWeight = FontWeight.Bold,
-        color = Color.Black
+        color = MaterialTheme.colorScheme.onSurface
     )
 }
 

@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -71,7 +72,7 @@ fun FavouriteScreen(navController: NavController, viewModel: FavoriteViewModel =
                     ) {
                         Text(
                             text = recipe.title, fontSize = 14.sp,
-                            color = Color.Black, fontWeight = FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Medium,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
