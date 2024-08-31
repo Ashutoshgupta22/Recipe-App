@@ -5,9 +5,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.aspark.networking.ApiClient
 import com.aspark.recipeapp.MyApplication
+import com.aspark.recipeapp.UiState
 import com.aspark.recipeapp.room.RecipeEntity
 import com.aspark.recipeapp.repository.RecipeRepository
 import com.aspark.recipeapp.room.RecipeDatabase
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class FavoriteViewModel: ViewModel() {
@@ -18,13 +21,15 @@ class FavoriteViewModel: ViewModel() {
         database.equipmentDao()
     )
 
-    var favRecipes = mutableStateListOf<RecipeEntity>()
-        private set
+    private var _favRecipes = MutableStateFlow<UiState<List<RecipeEntity>>>(UiState.Loading)
+    val favRecipes = _favRecipes.asStateFlow()
+
 
     fun getFavRecipes() {
         viewModelScope.launch {
-            favRecipes.clear()
-            repository.getFavoriteRecipes()?.let { favRecipes.addAll(it) }
+            repository.getFavoriteRecipes().collect {
+                _favRecipes.value = it
+            }
         }
     }
 

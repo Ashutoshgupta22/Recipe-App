@@ -45,7 +45,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.aspark.networking.model.RecipeResponse
 import com.aspark.recipeapp.UiState
 import com.aspark.recipeapp.ui.Screen
@@ -86,10 +85,10 @@ fun HomeScreen(
                 )
             }
 
-            is UiState.Failure -> {
+            is UiState.Error -> {
                 Log.e(
                     "HomeScreen", "HomeScreen: RandomRecipes Failed",
-                    (recipeList as UiState.Failure).exception
+                    (recipeList as UiState.Error).exception
                 )
             }
 

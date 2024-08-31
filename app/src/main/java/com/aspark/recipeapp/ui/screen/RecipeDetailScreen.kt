@@ -79,7 +79,7 @@ fun RecipeDetailScreen(
             Log.i("RecipeDetail", "RecipeDetailScreen: ${recipe.data.summary}")
         }
 
-        is UiState.Failure -> {
+        is UiState.Error -> {
             ErrorScreen()
         }
 

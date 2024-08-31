@@ -48,7 +48,7 @@ class HomeViewModel() : ViewModel() {
                         isDataLoaded = true
                     }
 
-                    is UiState.Failure -> {
+                    is UiState.Error -> {
                         Log.e("HomeViewModel", "getRandomRecipes: Failed", result.exception)
                     }
 

@@ -43,7 +43,7 @@ class RecipeRepository(
                 emit(UiState.Success(remoteRecipes))
             } catch (e: Exception) {
                 if (getCachedRandomRecipes().isEmpty())
-                    emit(UiState.Failure(e))
+                    emit(UiState.Error(e))
             }
         }
     }
@@ -108,18 +108,18 @@ class RecipeRepository(
 
              if (response.isSuccessful && response.body() != null) {
                  if (response.body()!!.isEmpty())
-                     emit(UiState.Failure(Exception("No match found")))
+                     emit(UiState.Error(Exception("No match found")))
                  else
                      emit(UiState.Success(response.body()!!))
              }
              else {
                  Log.e("RecipeRepository", "getSearchSuggestions: Response unsuccessful")
-                 emit(UiState.Failure(Exception("Response unsuccessful")))
+                 emit(UiState.Error(Exception("Response unsuccessful")))
              }
          }
          catch (e: Exception) {
              Log.e("RecipeRepository", "getSearchSuggestions: Exception", e)
-             emit(UiState.Failure(e))
+             emit(UiState.Error(e))
          }
     }
 
@@ -131,11 +131,16 @@ class RecipeRepository(
 
             emit(UiState.Success(recipe))
         } catch (e: Exception) {
-            emit(UiState.Failure(e))
+            emit(UiState.Error(e))
         }
     }
 
-    suspend fun getFavoriteRecipes() = recipeDao.getFavoriteRecipes()
+    fun getFavoriteRecipes(): Flow<UiState<List<RecipeEntity>>> = flow {
+        Log.i("RecipeRepository", "getFavoriteRecipes: called")
+        recipeDao.getFavoriteRecipes().collect{
+            emit(it)
+        }
+    }.asUiState()
 
     suspend fun addToFavorites(recipe: RecipeEntity) {
         recipeDao.insertRecipe(recipe)
@@ -155,3 +160,15 @@ class RecipeRepository(
         return currentTime.minus(storedTime) > thresholdTime
     }
 }
+
+fun <T> Flow<T>.asUiState(): Flow<UiState<T>> = flow {
+    try {
+        collect { value ->
+            emit(UiState.Success(value))
+        }
+    } catch (e: Exception) {
+        Log.e("RecipeRepository", "asUiState: ", e)
+        emit(UiState.Error(e))
+    }
+}
+

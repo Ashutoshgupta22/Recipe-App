@@ -5,6 +5,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface RecipeDao {
@@ -13,7 +14,7 @@ interface RecipeDao {
     suspend fun getAllRecipes(): List<RecipeEntity>
 
     @Query("SELECT * FROM recipe WHERE isFavorite = 1")
-    suspend fun getFavoriteRecipes(): List<RecipeEntity>
+    fun getFavoriteRecipes(): Flow<List<RecipeEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertRecipe(recipe: RecipeEntity)
