@@ -39,6 +39,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
@@ -103,11 +104,17 @@ fun Content(recipe: RecipeResponse, detailViewModel: RecipeDetailViewModel) {
     ) {
         RecipeImage(recipe, detailViewModel)
 
+        Text(
+            text = recipe.title,
+            style = MaterialTheme.typography.headlineSmall,
+            modifier = Modifier
+                .padding(start = 16.dp, top = 8.dp, end = 16.dp),
+            fontFamily = FontFamily.Serif
+        )
+
         Column(
             modifier = Modifier.padding(16.dp),
         ) {
-            Spacer(modifier = Modifier.height(16.dp))
-
             QuickCards(recipe)
             Spacer(modifier = Modifier.height(32.dp))
 
@@ -408,17 +415,6 @@ fun RecipeImage(
                 .fillMaxWidth()
                 .height(300.dp)
         )
-
-        Text(
-            text = recipe.title,
-            fontWeight = FontWeight.Bold,
-            color = Color.White,
-            fontSize = 20.sp,
-            modifier = Modifier
-                .align(Alignment.BottomStart)
-                .padding(start = 16.dp, bottom = 20.dp)
-        )
-
         val isFavorite = viewModel.isFavorite.collectAsState().value
         val color = MaterialTheme.colorScheme.background
 
