@@ -57,21 +57,25 @@ import com.aspark.recipeapp.viewmodel.HomeViewModel
 @Composable
 fun HomeScreen(
     navController: NavController,
+    innerPadding: PaddingValues,
     homeViewModel: HomeViewModel = viewModel()
 ) {
     Column(
-        modifier = Modifier.padding( 16.dp)
+        modifier = Modifier
+            .padding(innerPadding)
     ) {
+        Column(
+            modifier = Modifier
+                .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 8.dp)
+        ) {
+            Text(text = "\uD83D\uDC4B Hey!", fontWeight = FontWeight.Medium)
+            Text(text = "Discover tasty and healthy recipes", fontSize = 12.sp)
 
-        Text(text = "\uD83D\uDC4B Hey!", fontWeight = FontWeight.Medium)
-        Text(text = "Discover tasty and healthy recipes", fontSize = 12.sp)
-
-        Spacer(modifier = Modifier.height(8.dp))
-        SearchBarDuplicate {
-            navController.navigate(Screen.Search.route)
+            Spacer(modifier = Modifier.height(8.dp))
+            SearchBarDuplicate {
+                navController.navigate(Screen.Search.route)
+            }
         }
-
-        Spacer(modifier = Modifier.height(8.dp))
 
         val recipeList by homeViewModel.randomRecipes.collectAsState()
 
@@ -133,13 +137,13 @@ fun SearchBarDuplicate(onClick: () -> Unit) {
 
 @Composable
 fun AllRecipesItem(recipe: RecipeResponse, cardClicked: (Long) -> Unit) {
-
     OutlinedCard(
         onClick = { cardClicked(recipe.id) },
         shape = RoundedCornerShape(12.dp),
         modifier = Modifier
             .fillMaxWidth()
             .height(100.dp)
+            .padding(horizontal = 16.dp)
     ) {
         Row {
             MyAsyncImage(
@@ -176,15 +180,18 @@ fun PopularRecipes(popularRecipes: List<RecipeResponse>, onClick: (Long) -> Unit
 
     Column(
         modifier = Modifier
-            .padding(top = 24.dp)
+            .padding(top = 16.dp)
     ) {
         Text(
             text = "Popular Recipes", fontWeight = FontWeight.Bold,
-            fontSize = 16.sp
+            fontSize = 16.sp,
+            modifier = Modifier
+                .padding(start = 16.dp)
         )
 
         LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            contentPadding = PaddingValues(horizontal = 16.dp)
         ) {
             itemsIndexed(popularRecipes) { index, recipe ->
                 PopularRecipeItem(recipe) { recipeId -> onClick(recipeId) }
@@ -198,12 +205,10 @@ fun HomeScreenContent(
     recipeList: List<RecipeResponse>,
     onClick: (Long) -> Unit
     ) {
-
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(12.dp),
-        contentPadding = PaddingValues(bottom = 70.dp)
+        contentPadding = PaddingValues(bottom = 16.dp)
     ) {
-
         item {
             PopularRecipes(recipeList.take(10)) { recipeId -> onClick(recipeId) }
 
@@ -211,7 +216,9 @@ fun HomeScreenContent(
 
             Text(
                 text = "All recipes", fontWeight = FontWeight.Bold,
-                fontSize = 16.sp
+                fontSize = 16.sp,
+                modifier = Modifier
+                    .padding(start = 16.dp)
             )
         }
 
@@ -277,10 +284,9 @@ fun HomeScreenContent(
 
     @Composable
     fun LoadingScreen() {
-
         Column(
             modifier = Modifier
-//                .padding(16.dp)
+                .padding(16.dp)
         ) {
             Row(
                 horizontalArrangement = Arrangement.spacedBy(12.dp),

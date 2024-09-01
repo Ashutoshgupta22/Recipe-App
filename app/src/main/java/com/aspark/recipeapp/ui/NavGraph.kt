@@ -1,13 +1,11 @@
 package com.aspark.recipeapp.ui
 
-import android.view.animation.Animation
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.runtime.Composable
@@ -16,7 +14,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.aspark.recipeapp.ui.screen.FavouriteScreen
 import com.aspark.recipeapp.ui.screen.HomeScreen
@@ -26,7 +23,7 @@ import com.aspark.recipeapp.ui.screen.SearchScreen
 @Composable
 fun NavGraph(
     navController: NavHostController,
-    paddingValues: PaddingValues,
+    innerPadding: PaddingValues,
     onNavigate: (String) -> Unit
 ) {
 
@@ -56,7 +53,7 @@ fun NavGraph(
                 )
             }
             ) {
-            HomeScreen(navController)
+            HomeScreen(navController, innerPadding)
             onNavigate(Screen.Home.route)
         }
 
@@ -69,7 +66,7 @@ fun NavGraph(
             onNavigate(Screen.RecipeDetail.route)
         }
         composable(Screen.Favorites.route) {
-            FavouriteScreen(navController = navController)
+            FavouriteScreen(navController = navController, innerPadding )
             onNavigate(Screen.Favorites.route)
         }
 

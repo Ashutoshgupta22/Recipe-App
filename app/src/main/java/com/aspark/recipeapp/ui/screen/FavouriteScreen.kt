@@ -3,6 +3,7 @@ package com.aspark.recipeapp.ui.screen
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -36,6 +37,7 @@ import com.aspark.recipeapp.ui.component.MyAsyncImage
 @Composable
 fun FavouriteScreen(
     navController: NavController,
+    innerPadding: PaddingValues,
     viewModel: FavoriteViewModel = viewModel()
 ) {
     LaunchedEffect(Unit) {
@@ -46,6 +48,7 @@ fun FavouriteScreen(
                 if (favRecipesState.data.isNotEmpty()) {
                     FavoriteScreenContent(
                         data = favRecipesState.data,
+                        innerPadding = innerPadding,
                         onItemClick = { recipeId ->
                             navController.navigate("recipeDetail/$recipeId")
                         }
@@ -75,12 +78,15 @@ fun EmptyScreen() {
 @Composable
 private fun FavoriteScreenContent(
     data: List<RecipeEntity>,
+    innerPadding: PaddingValues,
     onItemClick: (Long) -> Unit
 ) {
     LazyColumn(
         modifier = Modifier
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+            .padding(innerPadding)
+            .padding(horizontal = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        contentPadding = PaddingValues(vertical = 16.dp)
     ) {
         items(data) { recipe ->
             OutlinedCard(
