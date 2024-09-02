@@ -14,6 +14,7 @@ import com.aspark.recipeapp.room.IngredientDao
 import com.aspark.recipeapp.room.RecipeDao
 import com.aspark.recipeapp.room.toEntity
 import com.aspark.recipeapp.room.toRecipeResponse
+import com.aspark.recipeapp.ui.screen.LoadingScreen
 import com.aspark.recipeapp.utility.SaveTime
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
@@ -30,17 +31,20 @@ class RecipeRepository(
 
     // Function to get recipes, first from cache then from network
     fun getRandomRecipes(): Flow<UiState<List<RecipeResponse>>> = flow {
-
         // Emit cached data first
-        emit(UiState.Success(getCachedRandomRecipes()))
+        val cachedRecipes = getCachedRandomRecipes()
+        if (cachedRecipes.isNotEmpty()) emit(UiState.Success(cachedRecipes))
 
         if (isCacheOld()) { //fetch from remote if cache is old
             try {
                 val remoteResponse = apiService.getRandomRecipes(number = 25)
-                val remoteRecipes = remoteResponse.body()?.recipes?.toImmutableList()!!
+                val remoteRecipes = remoteResponse.body()?.recipes?.toImmutableList()
 
-                updateCache(remoteRecipes)
-                emit(UiState.Success(remoteRecipes))
+                if (remoteRecipes != null) {
+                    updateCache(remoteRecipes)
+                    emit(UiState.Success(remoteRecipes))
+                }
+                else emit(UiState.Error(Exception("No data received from from API")))
             } catch (e: Exception) {
                 if (getCachedRandomRecipes().isEmpty())
                     emit(UiState.Error(e))

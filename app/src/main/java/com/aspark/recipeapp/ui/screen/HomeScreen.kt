@@ -31,6 +31,7 @@ import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -60,6 +61,9 @@ fun HomeScreen(
     innerPadding: PaddingValues,
     homeViewModel: HomeViewModel = viewModel()
 ) {
+//    LaunchedEffect(Unit) {
+//        homeViewModel.getRandomRecipes()
+//    }
     Column(
         modifier = Modifier
             .padding(innerPadding)
@@ -81,8 +85,10 @@ fun HomeScreen(
 
         when (recipeList) {
             is UiState.Success -> {
+                val data = (recipeList as UiState.Success<List<RecipeResponse>>).data
+
                 HomeScreenContent(
-                    recipeList = (recipeList as UiState.Success<List<RecipeResponse>>).data,
+                    recipeList = data,
                     onClick = { recipeId ->
                         navController.navigate(Screen.RecipeDetail.createRoute(recipeId))
                     }
@@ -284,6 +290,7 @@ fun HomeScreenContent(
 
     @Composable
     fun LoadingScreen() {
+        Log.i("HomeScreen", "LoadingScreen: called")
         Column(
             modifier = Modifier
                 .padding(16.dp)
