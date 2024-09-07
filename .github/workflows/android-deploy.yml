@@ -20,7 +20,7 @@ jobs:
 
     - name: Create local.properties
       run: |
-        cd /home/runner/work/Recipe-App/Recipe-App
+        cd /home/runner/work/Recipe-App
         echo "sdk.dir=$ANDROID_HOME" > local.properties
         echo "API_KEY=${{ secrets.API_KEY }}" >> local.properties
       shell: bash
