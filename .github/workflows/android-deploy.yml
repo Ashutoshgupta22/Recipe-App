@@ -20,8 +20,8 @@ jobs:
 
     - name: Create local.properties
       run: |
-        cd /home/runner/work/Recipe-App/Recipe-App
-        echo "sdk.dir=$ANDROID_HOME" > Recipe-App/local.properties
+        cd /home/runner/work/Recipe-App
+        echo "sdk.dir=$ANDROID_HOME" > local.properties
         echo "API_KEY=${{ secrets.API_KEY }}" >> local.properties
       shell: bash
 
@@ -30,7 +30,7 @@ jobs:
         pwd
         ls -la
         cat local.properties
-      working-directory: /home/runner/work/Recipe-App/Recipe-App
+      working-directory: /home/runner/work/Recipe-App
 
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
