@@ -26,6 +26,13 @@ jobs:
         echo "API_KEY=${{ secrets.API_KEY }}" >> local.properties
       shell: bash
 
+    - name: Debug - List directory contents
+      run: |
+        pwd
+        ls -la
+        cat local.properties
+      # working-directory: /home/runner/work/Recipe-App
+
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
 
