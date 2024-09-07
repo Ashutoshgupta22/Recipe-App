@@ -20,6 +20,7 @@ jobs:
 
     - name: Create local.properties
       run: |
+        cd /home/runner/work/Recipe-App/Recipe-App
         echo "sdk.dir=$ANDROID_HOME" > local.properties
         echo "API_KEY=${{ secrets.API_KEY }}" >> local.properties
       shell: bash
@@ -33,7 +34,7 @@ jobs:
     - name: Sign APK
       uses: r0adkll/sign-android-release@v1
       with:
-        releaseDirectory: app/build/outputs/apk/release
+        releaseDirectory: app/release
         signingKeyBase64: ${{ secrets.SIGNING_KEY }}
         alias: ${{ secrets.ALIAS }}
         keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
