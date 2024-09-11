@@ -27,8 +27,8 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Build Release APK
-        run: ./gradlew assembleRelease
+      - name: Build Release Bundle
+        run: ./gradlew bundleRelease
 
       - name: Setup build tool version variable
         shell: bash
@@ -37,24 +37,12 @@ jobs:
           echo "BUILD_TOOL_VERSION=$BUILD_TOOL_VERSION" >> $GITHUB_ENV
           echo Last build tool version is: $BUILD_TOOL_VERSION
 
-      - name: Sign APK
-        uses: r0adkll/sign-android-release@v1.0.4
-        with:
-          releaseDirectory: app/build/outputs/apk/release
-          signingKeyBase64: ${{ secrets.SIGNING_KEY }}
-          alias: ${{ secrets.ALIAS }}
-          keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
-          keyPassword: ${{ secrets.KEY_PASSWORD }}
-        env:
-          BUILD_TOOLS_VERSION: ${{ env.BUILD_TOOL_VERSION }}
-
       - name: Deploy to Play Store
         uses: r0adkll/upload-google-play@v1
         with:
           serviceAccountJsonPlainText: ${{ secrets.SERVICE_ACCOUNT_JSON }}
           packageName: com.aspark.recipeapp
-          releaseFiles: app/build/outputs/apk/release/*-signed.apk
+          releaseFiles: app/build/outputs/bundle/release/app-release.aab
           track: production
           status: completed
           whatsNewDirectory: whatsnew/
-          mappingFile: app/build/outputs/mapping/release/mapping.txt
