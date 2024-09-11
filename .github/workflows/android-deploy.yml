@@ -1,13 +1,13 @@
 name: Deploy to Play Store
-
 on:
   release:
     types: [ created ]
+  workflow_dispatch:  # This adds the manual trigger
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    
+
     steps:
       - uses: actions/checkout@v3
 
@@ -20,8 +20,8 @@ jobs:
 
       - name: Create local.properties
         run: |
-               echo "sdk.dir=$ANDROID_HOME" > local.properties
-               echo "API_KEY=${{ secrets.API_KEY }}" >> local.properties
+          echo "sdk.dir=$ANDROID_HOME" > local.properties
+          echo "API_KEY=${{ secrets.API_KEY }}" >> local.properties
         shell: bash
 
       - name: Grant execute permission for gradlew
@@ -29,12 +29,14 @@ jobs:
 
       - name: Build Release APK
         run: ./gradlew assembleRelease
-        working-directory: /home/runner/work/Recipe-App/Recipe-App
+
+      - name: Debug - List APK directory contents
+        run: ls -R app/build/outputs/apk/
 
       - name: Sign APK
         uses: r0adkll/sign-android-release@v1
         with:
-          releaseDirectory: app/release
+          releaseDirectory: app/build/outputs/apk/release
           signingKeyBase64: ${{ secrets.SIGNING_KEY }}
           alias: ${{ secrets.ALIAS }}
           keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
@@ -45,7 +47,7 @@ jobs:
         with:
           serviceAccountJsonPlainText: ${{ secrets.SERVICE_ACCOUNT_JSON }}
           packageName: com.aspark.recipeapp
-          releaseFiles: app/build/outputs/apk/release/app-release-signed.apk
+          releaseFiles: app/build/outputs/apk/release/*-signed.apk
           track: production
           status: completed
           userFraction: 1
