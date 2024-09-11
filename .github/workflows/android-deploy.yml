@@ -56,6 +56,5 @@ jobs:
           releaseFiles: app/build/outputs/apk/release/*-signed.apk
           track: production
           status: completed
-          userFraction: 0.9
           whatsNewDirectory: whatsnew/
           mappingFile: app/build/outputs/mapping/release/mapping.txt
