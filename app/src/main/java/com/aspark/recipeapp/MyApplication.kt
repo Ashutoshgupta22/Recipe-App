@@ -1,6 +1,7 @@
 package com.aspark.recipeapp
 
 import android.app.Application
+import com.aspark.recipeapp.ui.MainActivity
 
 class MyApplication : Application() {
 
