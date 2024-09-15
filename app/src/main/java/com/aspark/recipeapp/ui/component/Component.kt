@@ -2,7 +2,6 @@
 
 package com.aspark.recipeapp.ui.component
 
-import android.util.Log
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
@@ -61,6 +60,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import coil.compose.AsyncImage
 import coil.imageLoader
 import coil.request.ImageRequest
@@ -68,26 +68,25 @@ import com.aspark.recipeapp.ui.Screen
 import kotlinx.coroutines.delay
 
 @Composable
-fun BottomNavigationBar(
-    navController: NavController,
-    selected: Screen,
-    onItemSelected: (Screen) -> Unit
-) {
-
-    Log.i("Component", "BottomNavigationBar: called")
+fun BottomNavigationBar(navController: NavController) {
+val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
 
     NavigationBar {
         NavigationBarItem(
-            selected = selected == Screen.Home,
+            selected = currentRoute == Screen.Home.route,
             onClick = {
-                navController.navigate(Screen.Home.route)
-                onItemSelected(Screen.Home)
+                navController.navigate(Screen.Home.route) {
+                    popUpTo(Screen.Home.route) {
+                        saveState = true  //store the state of deleted destinations
+                    }
+                    launchSingleTop = true
+                }
             },
             label = { Text(text = "Home") },
             icon = {
                 Icon(
                     imageVector =
-                    if (selected == Screen.Home) Screen.Home.selectedIcon!!
+                    if (currentRoute == Screen.Home.route) Screen.Home.selectedIcon!!
                     else Screen.Home.icon!!,
                     contentDescription = ""
                 )
@@ -95,16 +94,20 @@ fun BottomNavigationBar(
         )
 
         NavigationBarItem(
-            selected = selected == Screen.Favorites,
+            selected = currentRoute == Screen.Favorites.route,
             onClick = {
-                navController.navigate(Screen.Favorites.route)
-                onItemSelected(Screen.Favorites)
+                navController.navigate(Screen.Favorites.route) {
+                    popUpTo(Screen.Favorites.route) {
+                    }
+                    launchSingleTop = true
+                    restoreState = true // restore the state of this screen if saved
+                }
             },
             label = { Text(text = "Favourite") },
             icon = {
                 Icon(
                     imageVector =
-                    if (selected == Screen.Favorites) Screen.Favorites.selectedIcon!!
+                    if (currentRoute == Screen.Favorites.route) Screen.Favorites.selectedIcon!!
                     else Screen.Favorites.icon!!,
                     contentDescription = ""
                 )

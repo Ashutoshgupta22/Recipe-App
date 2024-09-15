@@ -24,7 +24,6 @@ import com.aspark.recipeapp.ui.screen.SearchScreen
 fun NavGraph(
     navController: NavHostController,
     innerPadding: PaddingValues,
-    onNavigate: (String) -> Unit
 ) {
 
     NavHost(
@@ -54,7 +53,6 @@ fun NavGraph(
             }
             ) {
             HomeScreen(navController, innerPadding)
-            onNavigate(Screen.Home.route)
         }
 
         composable(
@@ -63,11 +61,9 @@ fun NavGraph(
         ) { backStackEntry ->
             val recipeId = backStackEntry.arguments?.getLong("recipeId") ?: return@composable
             RecipeDetailScreen(recipeId)
-            onNavigate(Screen.RecipeDetail.route)
         }
         composable(Screen.Favorites.route) {
             FavouriteScreen(navController = navController, innerPadding )
-            onNavigate(Screen.Favorites.route)
         }
 
         composable(Screen.Search.route,
@@ -85,7 +81,6 @@ fun NavGraph(
             }
             ) {
             SearchScreen(navController = navController)
-            onNavigate(Screen.Search.route)
         }
     }
 }

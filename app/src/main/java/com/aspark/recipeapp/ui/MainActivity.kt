@@ -13,6 +13,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.aspark.recipeapp.ui.component.BottomNavigationBar
 import com.aspark.recipeapp.ui.theme.RecipeAppTheme
@@ -27,26 +28,17 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     val navController = rememberNavController()
-                    var showBottomNavBar by remember {mutableStateOf(true)}
-                    var selected by remember { mutableStateOf<Screen>(Screen.Home) }
-
-                    Log.i("MainActivity", "onCreate: called ")
+                    val currentRoute = navController.currentBackStackEntryAsState()
+                        .value?.destination?.route
 
                         Scaffold(
                             bottomBar = {
-                                if (showBottomNavBar)
-                                    BottomNavigationBar(
-                                        navController = navController,
-                                        selected = selected
-                                    ) { selectedScreen ->
-                                        selected = selectedScreen
-                                    }
+                                if (currentRoute == Screen.Home.route ||
+                                    currentRoute == Screen.Favorites.route)
+                                    BottomNavigationBar(navController = navController)
                             }
                         ) {
-                            NavGraph(navController, it) { route ->
-                                showBottomNavBar = route == Screen.Home.route
-                                        || route == Screen.Favorites.route
-                            }
+                            NavGraph(navController, it)
                         }
                 }
             }
